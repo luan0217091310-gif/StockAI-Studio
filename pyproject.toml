@@ -1,0 +1,55 @@
+[project]
+name = "stockai-studio"
+version = "3.0.0"
+description = "StockAI Studio — tự động tạo bản tin chứng khoán video 9:16 (Blueprint v3.0)"
+readme = "README.md"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "pydantic>=2.8",
+    "pydantic-settings>=2.4",
+    "python-multipart>=0.0.9",
+    "httpx>=0.27",
+    "tenacity>=9",
+    "feedparser>=6.0.11",
+    "beautifulsoup4>=4.12",
+    "pandas>=2.2",
+    "numpy>=1.26",
+    "matplotlib>=3.9",
+    "mplfinance>=0.12.10b0",
+    "Pillow>=10.4",
+    "edge-tts>=7.3",
+    "google-genai>=1.0",
+    "apscheduler>=3.11,<4",
+    "pywebview>=6.1",
+    "keyring>=25",
+    "platformdirs>=4",
+    "typer>=0.12",
+]
+
+[project.scripts]
+stockai = "stockai.cli:app"
+
+[dependency-groups]
+dev = ["pytest>=8", "pytest-asyncio>=0.24", "ruff>=0.6"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["stockai"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+ignore = ["E501", "B008"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+markers = ["network: test cần mạng (mặc định bỏ qua)"]
+addopts = "-m 'not network'"

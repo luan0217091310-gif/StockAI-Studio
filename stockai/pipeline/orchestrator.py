@@ -12,7 +12,7 @@ from zoneinfo import ZoneInfo
 
 from stockai import config, secrets
 from stockai.db.repo import Repo, get_repo
-from stockai.errors import ConfigError, JobCancelled, StockAIError
+from stockai.errors import ConfigError, StockAIError
 from stockai.layout import LAYOUT
 from stockai.models import MarketSnapshot, NewsItem, PublishOptions, ScriptContext, ScriptOutput, WordTiming
 from stockai.pipeline.events import bus
@@ -137,8 +137,11 @@ class Orchestrator:
 
     # ---------------- chạy ----------------
     async def _run(self, job_id: str, job_dir: Path, opts: dict) -> None:
+        from stockai.scheduler import prevent_sleep
+
         async with self.lock:
             self.current_job = job_id
+            prevent_sleep(True)
             job = self.repo.get_job(job_id)
             self.set_status(job_id, "RUNNING", started_at=datetime.now(VN).isoformat(timespec="seconds"))
             self.emit(job_id, 0, "INFO", f"Bắt đầu job {job_id[:8]} · {job['session_type']} · chế độ {job['mode']} · "
@@ -169,6 +172,7 @@ class Orchestrator:
                 self.emit(job_id, None, "ERROR", f"Lỗi không mong đợi: {type(e).__name__}: {e}"[:400])
             finally:
                 self.current_job = None
+                prevent_sleep(False)
                 shutil.rmtree(config.data_dir() / "temp" / job_id, ignore_errors=True)
 
     # ---------------- B1 ----------------

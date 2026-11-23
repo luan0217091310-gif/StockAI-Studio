@@ -74,7 +74,7 @@ SECRET_KEYS = ["gemini_api_key", "openai_api_key", "fal_key", "heygen_api_key", 
 
 
 def data_dir() -> Path:
-    p = Path(os.environ.get("STOCKAI_DATA_DIR") or user_data_dir(APP_NAME, APP_AUTHOR))
+    p = Path(os.environ.get("STOCKAI_DATA_DIR") or user_data_dir(APP_NAME, APP_AUTHOR)).resolve()
     for sub in ("user_assets", "outputs", "temp", "logs"):
         (p / sub).mkdir(parents=True, exist_ok=True)
     return p

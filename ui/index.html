@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StockAI Studio</title>
+<link rel="stylesheet" href="/ui/styles.css">
+</head>
+<body>
+<div class="top">
+  <div class="brand">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2" stroke-linecap="round"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>
+    StockAI Studio
+  </div>
+  <span class="conn" id="conn" title="Kết nối realtime"></span>
+  <div class="banner" id="banner">⚗ Chế độ DEMO</div>
+</div>
+<div class="wrap">
+<nav id="nav">
+  <button data-tab="dash" class="on">▦ Bảng điều khiển</button>
+  <button data-tab="char">◉ Nhân vật &amp; giọng</button>
+  <button data-tab="lib">▶ Kho nội dung <span id="navWait"></span></button>
+  <button data-tab="sched">◷ Lịch tự động</button>
+  <button data-tab="set">⚙ Cài đặt</button>
+</nav>
+<main>
+<!-- TAB 1: Bảng điều khiển -->
+<section class="tab on" id="tab-dash">
+  <div class="cards">
+    <div class="card"><div class="k">VN-Index <span class="badge" id="qBadge">—</span></div><div class="v" id="cIdx">—</div><div class="s" id="cChg">Chưa có dữ liệu</div></div>
+    <div class="card"><div class="k">Video đã tạo</div><div class="v" id="cVid">0</div><div class="s" id="cWait">0 chờ duyệt</div></div>
+    <div class="card"><div class="k">Lịch tiếp theo</div><div class="v" id="cNext">--:--</div><div class="s" id="cCount">Chưa có lịch</div></div>
+    <div class="card"><div class="k">Chế độ</div><div class="v" id="cMode">Demo</div><div class="s" id="cCost">0 đồng</div></div>
+  </div>
+  <div id="pfBanner"></div>
+  <div class="dash">
+    <div>
+      <div class="row" style="flex-wrap:nowrap">
+        <button class="run" id="runBtn">▶ <span>Chạy quy trình ngay</span></button>
+        <select id="sessSel" style="width:160px"><option value="PRE_MARKET">Trước phiên</option><option value="POST_MARKET">Sau phiên</option><option value="ADHOC" selected>Đột xuất</option></select>
+        <label class="small" style="white-space:nowrap"><input type="checkbox" id="offChk"> Offline</label>
+      </div>
+      <div class="prog"><div id="progBar"></div></div>
+      <div class="steps" id="steps"></div>
+      <div class="termbar"><span>Live Terminal Log <span id="jobLbl" class="muted"></span></span><span><button class="btn small" id="copyLog">Sao chép log</button> <button class="btn small" id="clrLog">Xóa</button></span></div>
+      <div class="term" id="term"><span class="muted">Bấm "Chạy quy trình ngay" để xem log realtime.</span></div>
+    </div>
+    <div class="phone">
+      <div class="vbox" id="dashV"><div class="empty">Chưa có video</div></div>
+      <div class="small muted" style="margin-top:8px" id="dashCap">Xem trước 9:16</div>
+    </div>
+  </div>
+</section>
+
+<!-- TAB 2: Nhân vật & giọng -->
+<section class="tab" id="tab-char">
+  <h2>Nhân vật &amp; giọng đọc</h2>
+  <div class="grid2">
+    <div class="card">
+      <h3>Ảnh chân dung (vùng avatar 1080 × 976)</h3>
+      <div class="avwrap"><img id="avImg" alt=""><div class="sub"></div><div class="cov">từ đây xuống bị UI nền tảng che (y ≥ 1440)</div></div>
+      <div class="small muted" id="avStatus" style="margin-top:6px"></div>
+      <div class="drop" id="drop">Kéo-thả hoặc bấm để chọn ảnh chân dung (JPG/PNG, nên ≥ 720px ngang)</div>
+      <input type="file" id="avFile" accept="image/*" hidden>
+      <label class="f">Tên người trong ảnh</label><input type="text" id="consName" placeholder="Ví dụ: Nguyễn Văn A">
+      <label class="f">Quan hệ</label>
+      <select id="consRel"><option value="SELF">Tôi là người trong ảnh</option><option value="AUTHORIZED">Đã được người trong ảnh đồng ý</option></select>
+      <div class="chk"><input type="checkbox" id="consChk"><label for="consChk" id="consTxt">Tôi là người trong ảnh hoặc đã được người trong ảnh đồng ý cho sử dụng hình ảnh để tạo MC ảo.</label></div>
+      <div class="row"><button class="btn pri" id="avUpload" disabled>Tải ảnh lên</button><button class="btn danger" id="avReset">Dùng ảnh mẫu</button></div>
+      <h3 style="margin-top:18px">Logo &amp; nhạc nền</h3>
+      <div class="row"><input type="file" id="logoFile" accept="image/*" hidden><button class="btn" id="logoBtn">Tải logo</button><span class="small muted" id="logoSt"></span></div>
+      <div class="row" style="margin-top:8px"><input type="file" id="bgmFile" accept="audio/*" hidden><button class="btn" id="bgmBtn">Tải nhạc nền</button><span class="small muted" id="bgmSt"></span><button class="btn small danger" id="bgmDel">Bỏ nhạc nền</button></div>
+    </div>
+    <div class="card">
+      <h3>Nhà cung cấp avatar</h3>
+      <select id="avProv">
+        <option value="demo">Demo – chuyển động nhẹ (0 đồng, không khớp môi)</option>
+        <option value="fal">fal.ai (Kling AI Avatar v2 / OmniHuman)</option>
+        <option value="heygen">HeyGen Photo Avatar</option>
+        <option value="hybrid">Hybrid: khớp môi ~15 giây đầu/cuối</option>
+      </select>
+      <label class="f">Model fal.ai</label>
+      <select id="falModel"><option>fal-ai/kling-video/ai-avatar/v2/standard</option><option>fal-ai/kling-video/ai-avatar/v2/pro</option><option>fal-ai/bytedance/omnihuman</option></select>
+      <label class="f">Giới hạn chi phí / video (USD)</label><input type="number" id="maxCost" step="0.5" min="0">
+      <div class="info" id="costEst"></div>
+      <h3 style="margin-top:16px">Giọng đọc</h3>
+      <label class="f">Giọng (edge-tts)</label>
+      <select id="voiceSel"><option value="vi-VN-HoaiMyNeural">vi-VN-HoaiMyNeural (nữ)</option><option value="vi-VN-NamMinhNeural">vi-VN-NamMinhNeural (nam)</option></select>
+      <label class="f">Tốc độ: <b id="rateLbl">+5%</b></label><input type="range" id="rate" min="-10" max="20" value="5" style="width:100%">
+      <label class="f">Đọc số</label><select id="numMode"><option value="engine">Để engine tự đọc</option><option value="words">Đổi số thành chữ</option></select>
+      <label class="f">Câu nghe thử</label><input type="text" id="ttsText" value="Xin chào, đây là bản tin chứng khoán. VN-Index tăng 12,35 điểm, tương ứng +0,97%.">
+      <div class="row" style="margin-top:10px"><button class="btn pri" id="ttsBtn">🔊 Nghe thử</button><button class="btn" id="voiceSave">Lưu cài đặt giọng &amp; avatar</button></div>
+      <audio id="ttsAudio" controls style="width:100%;margin-top:10px;display:none"></audio>
+      <div class="small muted" id="ttsNorm"></div>
+    </div>
+  </div>
+</section>
+
+<!-- TAB 3: Kho nội dung -->
+<section class="tab" id="tab-lib">
+  <div class="row" style="justify-content:space-between"><h2>Kho nội dung &amp; duyệt bài</h2>
+    <select id="libFilter" style="width:220px"><option value="">Tất cả trạng thái</option><option value="WAITING_APPROVAL">Chờ duyệt</option><option value="COMPLETED">Hoàn tất</option><option value="FAILED">Lỗi</option><option value="CANCELLED">Đã hủy</option><option value="SKIPPED">Bỏ qua</option></select></div>
+  <div class="joblist" id="jobList"></div>
+  <div id="jobDetail"></div>
+</section>
+
+<!-- TAB 4: Lịch -->
+<section class="tab" id="tab-sched">
+  <h2>Lịch tự động</h2>
+  <div class="note">Lịch chỉ chạy khi ứng dụng đang mở (có thể thu nhỏ xuống khay hệ thống). Lịch bị lỡ trong vòng 120 phút sẽ được chạy bù khi mở lại app.</div>
+  <div class="grid2">
+    <div class="card">
+      <h3 id="sFormTitle">Thêm lịch</h3>
+      <input type="hidden" id="sId">
+      <label class="f">Tên</label><input type="text" id="sName" value="Bản tin trước phiên">
+      <label class="f">Loại phiên</label><select id="sType"><option value="PRE_MARKET">Trước phiên</option><option value="POST_MARKET">Sau phiên</option></select>
+      <label class="f">Giờ</label><input type="time" id="sTime" value="07:30">
+      <label class="f">Ngày</label><select id="sDays"><option value="mon-fri">Thứ 2 – Thứ 6</option><option value="mon-sun">Cả tuần</option></select>
+      <label class="f">Nền tảng</label>
+      <div class="row small" id="sPf"><label><input type="checkbox" value="telegram" checked> Telegram</label><label><input type="checkbox" value="facebook"> Facebook Reels</label><label><input type="checkbox" value="youtube"> YouTube Shorts</label><label><input type="checkbox" value="tiktok"> TikTok (luôn cần duyệt)</label></div>
+      <div class="chk"><label class="switch"><input type="checkbox" id="sAppr" checked><span></span></label> Chờ tôi duyệt trước khi đăng</div>
+      <div class="row"><button class="btn pri" id="sSave">Lưu lịch</button><button class="btn" id="sNew">Lịch mới</button><button class="btn" id="sQuick">Tạo lịch thử sau 2 phút</button></div>
+    </div>
+    <div class="card">
+      <h3>Danh sách lịch</h3>
+      <table><thead><tr><th>Bật</th><th>Tên</th><th>Giờ</th><th>Lần chạy gần nhất</th><th></th></tr></thead><tbody id="sTable"></tbody></table>
+    </div>
+  </div>
+</section>
+
+<!-- TAB 5: Cài đặt -->
+<section class="tab" id="tab-set">
+  <h2>Cài đặt</h2>
+  <div class="grid2">
+    <div class="card">
+      <h3>Chế độ vận hành</h3>
+      <div class="row"><span>DEMO</span><label class="switch"><input type="checkbox" id="modeSw"><span></span></label><span>PRODUCTION</span></div>
+      <div id="prodCheck"></div>
+      <h3 style="margin-top:18px">Dữ liệu &amp; AI</h3>
+      <label class="f">Thứ tự nguồn thị trường</label><input type="text" data-set="market.providers_order">
+      <label class="f">LLM provider</label><select data-set="llm.provider"><option value="gemini">Gemini</option><option value="openai_compat">OpenAI-compatible</option></select>
+      <label class="f">Gemini model</label><input type="text" data-set="llm.model">
+      <label class="f">Gemini model dự phòng</label><input type="text" data-set="llm.fallback_model">
+      <label class="f">OpenAI-compatible base URL</label><input type="text" data-set="llm.openai_base_url" placeholder="https://.../v1">
+      <label class="f">OpenAI-compatible model</label><input type="text" data-set="llm.openai_model">
+      <h3 style="margin-top:18px">Mạng xã hội (không bí mật)</h3>
+      <label class="f">Telegram Chat ID</label><input type="text" data-set="telegram_chat_id" placeholder="-100xxxxxxxxxx hoặc @kenh">
+      <label class="f">Facebook Page ID</label><input type="text" data-set="facebook_page_id">
+      <label class="f">Quyền riêng tư mặc định</label><select data-set="publish.default_privacy"><option>private</option><option>unlisted</option><option>public</option></select>
+      <h3 style="margin-top:18px">Kết xuất</h3>
+      <label class="f">Âm lượng nhạc nền (dB)</label><input type="text" data-set="audio.bgm_db">
+      <label class="f">Đường dẫn ffmpeg (để trống = tự tìm)</label><input type="text" data-set="ffmpeg_path">
+      <label class="f">Đường dẫn ffprobe</label><input type="text" data-set="ffprobe_path">
+      <label class="f">Giữ file (ngày)</label><input type="text" data-set="retention.days">
+      <div class="row" style="margin-top:12px"><button class="btn pri" id="setSave">Lưu cài đặt</button></div>
+      <h3 style="margin-top:18px">Kiểm tra môi trường</h3>
+      <table id="pfTable"></table>
+      <h3 style="margin-top:18px">Bảo trì</h3>
+      <div class="row"><button class="btn" id="cleanBtn">Dọn file cũ</button><button class="btn" id="openData">Mở thư mục dữ liệu</button><button class="btn" id="diagBtn">Xuất log chẩn đoán</button></div>
+      <div class="small muted" id="maintMsg"></div>
+    </div>
+    <div class="card">
+      <h3>Khóa dịch vụ (lưu trong Windows Credential Manager / macOS Keychain)</h3>
+      <div id="keys"></div>
+    </div>
+  </div>
+</section>
+</main>
+</div>
+<div class="toast" id="toast"></div>
+<script type="module" src="/ui/app.js"></script>
+</body>
+</html>

@@ -51,9 +51,9 @@ async def build_broll(job_dir: Path, seq: list[str], seg: float) -> Path:
 
 def final_graph(S: int, D: float, has_bgm: bool, bgm_db: float) -> str:
     g = [
-        "[0:v][1:v]overlay=0:%d[v1]" % L.broll.y,
+        f"[0:v][1:v]overlay=0:{L.broll.y}[v1]",
         "[v1][8:v]overlay=0:0[v1b]",
-        "[v1b][2:v]overlay=0:%d[v2]" % L.avatar.y,
+        f"[v1b][2:v]overlay=0:{L.avatar.y}[v2]",
         f"[v2][3:v]overlay=x='-mod(t*{L.ticker_speed},{S})':y={L.ticker.y}[v3]",
         "[4:a]asplit=2[a_voice][a_wave]",
         f"[a_wave]showwaves=s={L.wave.w}x{L.wave.h}:mode=cline:colors=0x10B981:rate=30,format=rgba,colorchannelmixer=aa=0.8[wave]",

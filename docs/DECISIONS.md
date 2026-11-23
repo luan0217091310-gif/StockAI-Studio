@@ -17,3 +17,6 @@
 | 23/11/2026 | Factcheck | Whitelist từ 3 chữ in hoa không phải mã CK (TIN, SMA, RSI…). |
 | 23/11/2026 | DB | `save_snapshot` dùng `ON CONFLICT DO UPDATE` thay `INSERT OR REPLACE` (tránh vỡ khóa ngoại job cũ). Thêm phụ thuộc `six` (mplfinance cần). |
 | 23/11/2026 | safe_zone_check.png | Luôn xuất (chỉ 1 frame) để người dùng tự kiểm bố cục. |
+| 23/11/2026 | Windows App Control (2) | Máy chặn `_multiprocessing.pyd` (chưa ký) của Python do uv tải → APScheduler import `ProcessPoolExecutor` bị vỡ. `stockai/__init__.py` thay bằng module rỗng nếu import lỗi (app không dùng multiprocessing). |
+| 23/11/2026 | UI | Dùng CSS thuần + CSS variables (Blueprint cho phép thay Tailwind) → không cần tải gì, chạy offline. Font phục vụ từ `assets/fonts`. |
+| 23/11/2026 | Token | Không nhúng token vào HTML; cửa sổ mở `/?t=token`, UI lưu sessionStorage rồi xóa khỏi URL. |

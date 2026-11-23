@@ -13,7 +13,7 @@ from stockai.render import ffmpeg
 
 
 def chars_to_words(chars: list[str], starts: list[float], ends: list[float]) -> list[WordTiming]:
-    words, cur, s = [], "", None
+    words, cur, s, prev_end = [], "", None, 0.0
     for ch, a, b in zip(chars, starts, ends, strict=True):
         if ch.isspace():
             if cur:

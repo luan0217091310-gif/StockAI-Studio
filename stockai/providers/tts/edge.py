@@ -29,9 +29,9 @@ class EdgeTTSProvider:
     name = "edge-tts"
 
     async def synthesize(self, text: str, voice: str, rate: str, out_dir: Path, emit=None) -> AudioResult:
-        import edge_tts
-
         import asyncio
+
+        import edge_tts
 
         audio = out_dir / "voice.mp3"
         last: Exception | None = None

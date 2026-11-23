@@ -4,6 +4,7 @@ import asyncio
 import json
 import os
 import shutil
+import subprocess
 from pathlib import Path
 
 from stockai.errors import ConfigError, StockAIError
@@ -47,8 +48,10 @@ def _bin(name: str) -> str:
 
 async def run(args: list[str], cwd: Path | None = None, timeout: float = 300, tool: str = "ffmpeg") -> str:
     full = [_bin(tool)] + (["-y", "-hide_banner", "-loglevel", "error"] if tool == "ffmpeg" else []) + args
-    proc = await asyncio.create_subprocess_exec(*full, cwd=str(cwd) if cwd else None,
-                                                stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+    # stdin=DEVNULL + CREATE_NO_WINDOW: khi app chạy bằng pythonw (không console), ffmpeg không bị kill 0xC000013A
+    proc = await asyncio.create_subprocess_exec(*full, cwd=str(cwd) if cwd else None, stdin=asyncio.subprocess.DEVNULL,
+                                                stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE,
+                                                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
     _procs.add(proc)
     try:
         out, err = await asyncio.wait_for(proc.communicate(), timeout)
@@ -87,13 +90,13 @@ def preflight_sync() -> dict:
            "hint": INSTALL_HINT}
     if not res["ffmpeg"] or not res["ffprobe"]:
         return res
-    flt = subprocess.run([res["ffmpeg"], "-hide_banner", "-filters"], capture_output=True, text=True, encoding="utf-8").stdout
-    enc = subprocess.run([res["ffmpeg"], "-hide_banner", "-encoders"], capture_output=True, text=True, encoding="utf-8").stdout
+    flt = subprocess.run([res["ffmpeg"], "-hide_banner", "-filters"], capture_output=True, text=True, encoding="utf-8", stdin=subprocess.DEVNULL, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0)).stdout
+    enc = subprocess.run([res["ffmpeg"], "-hide_banner", "-encoders"], capture_output=True, text=True, encoding="utf-8", stdin=subprocess.DEVNULL, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0)).stdout
     names = {ln.split()[1] for ln in flt.splitlines() if len(ln.split()) > 2}
     encs = {ln.split()[1] for ln in enc.splitlines() if len(ln.split()) > 2}
     res["filters"] = {f: f in names for f in REQUIRED_FILTERS}
     res["encoders"] = {e: e in encs for e in REQUIRED_ENCODERS}
-    ver = subprocess.run([res["ffmpeg"], "-version"], capture_output=True, text=True, encoding="utf-8").stdout.splitlines()
+    ver = subprocess.run([res["ffmpeg"], "-version"], capture_output=True, text=True, encoding="utf-8", stdin=subprocess.DEVNULL, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0)).stdout.splitlines()
     res["version"] = ver[0] if ver else ""
     res["ok"] = all(res["filters"].values()) and all(res["encoders"].values())
     return res

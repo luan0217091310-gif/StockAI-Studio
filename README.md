@@ -21,6 +21,7 @@ macOS: `brew install ffmpeg uv` rồi `uv sync`.
 
 | Việc | Lệnh |
 | :-- | :-- |
+| Cài 1 lần + tạo biểu tượng Desktop | bấm đúp `CaiDat.bat` (hoặc `uv run python -m stockai install --autostart`) |
 | Mở app (cửa sổ desktop) | bấm đúp `MoStockAI.bat` hoặc `uv run python app.py` |
 | Mở app trong trình duyệt | `uv run python app.py --browser` |
 | Kiểm tra môi trường | `uv run python -m stockai preflight` |

@@ -133,6 +133,26 @@ def youtube_login(client_secret: str):
     typer.echo(login(client_secret))
 
 
+
+
+@app.command()
+def install(autostart: bool = typer.Option(False, "--autostart", help="Tự khởi động (ẩn trong khay) cùng Windows")):
+    """Tạo lối tắt Desktop + Start Menu (chạy không cửa sổ console). M8."""
+    from stockai import desktop
+
+    for p in desktop.install_shortcuts(autostart):
+        typer.secho(f"✔ {p}", fg="green")
+
+
+@app.command()
+def autostart(on: bool = typer.Argument(..., help="true = bật, false = tắt")):
+    """Bật/tắt tự khởi động cùng Windows."""
+    from stockai import desktop
+
+    desktop.set_autostart(on)
+    typer.secho(f"Tự khởi động: {'BẬT' if desktop.autostart_enabled() else 'TẮT'}", fg="green")
+
+
 @db_app.command("migrate")
 def db_migrate():
     """Tạo/nâng cấp cơ sở dữ liệu."""

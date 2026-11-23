@@ -2,6 +2,13 @@
 
 > Cập nhật sau mỗi phần việc. Mới nhất ở trên cùng.
 
+## 23/11/2026 — đợt 5 (M8 + phần dở)
+- [x] Bản nháp Telegram riêng khi chờ duyệt (`telegram.draft_chat_id`, lỗi chỉ cảnh báo).
+- [x] Hybrid avatar: head 7s + tail 8s khớp môi, giữa DemoMotion, concat → avatar.mp4 (+2 test).
+- [x] M8: `stockai/desktop.py` (icon, khay pystray, 1 phiên, lối tắt, Startup), `launcher.pyw`, `CaiDat.bat`, CLI `install` / `autostart`.
+- [x] Sửa: ffmpeg bị kill 0xC000013A khi app chạy không console → stdin=DEVNULL + CREATE_NO_WINDOW.
+- [x] Kiểm chứng: mở từ lối tắt (pythonw, --tray) → job thật LIVE → final.mp4 74,1s; phiên thứ 2 tự thoát. ruff sạch, 54 test pass.
+
 ## 23/11/2026 — đợt 4 (hoàn thiện bản demo)
 - [x] Chạy app thật, chụp UI, chạy job qua API (giọng edge-tts thật, 74,1s), duyệt dry-run 4 nền tảng.
 - [x] Sửa: privacy riêng của TikTok (SELF_ONLY) làm vỡ bước đăng → ánh xạ về tập chuẩn + test hồi quy.

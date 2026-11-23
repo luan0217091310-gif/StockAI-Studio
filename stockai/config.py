@@ -61,6 +61,7 @@ DEFAULT_SETTINGS: dict[str, str] = {
     "retention.days": "30",
     "schedule.catchup_minutes": "120",
     "telegram_chat_id": "",
+    "telegram.draft_chat_id": "",
     "facebook_page_id": "",
     "facebook.graph_version": "v25.0",
     "youtube.category_id": "25",

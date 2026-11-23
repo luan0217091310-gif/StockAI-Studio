@@ -20,3 +20,11 @@
 | 23/11/2026 | Windows App Control (2) | Máy chặn `_multiprocessing.pyd` (chưa ký) của Python do uv tải → APScheduler import `ProcessPoolExecutor` bị vỡ. `stockai/__init__.py` thay bằng module rỗng nếu import lỗi (app không dùng multiprocessing). |
 | 23/11/2026 | UI | Dùng CSS thuần + CSS variables (Blueprint cho phép thay Tailwind) → không cần tải gì, chạy offline. Font phục vụ từ `assets/fonts`. |
 | 23/11/2026 | Token | Không nhúng token vào HTML; cửa sổ mở `/?t=token`, UI lưu sessionStorage rồi xóa khỏi URL. |
+
+## 23/11/2026 — M8: không dùng PyInstaller
+- Máy có Windows Application Control: `.venv\Scripts\pythonw.exe` (bản do uv tạo) bị chặn; `pythonw.exe` của Python gốc uv (`%APPDATA%\uv\python\cpython-3.12-*`) chạy được. Exe PyInstaller chưa ký sẽ bị chặn tương tự.
+- Giải pháp: lối tắt → Python gốc `pythonw.exe` + `launcher.pyw` (site.addsitedir .venv). Khay bằng pystray (`run_detached`), 1 phiên qua `data/running.json`.
+- Chạy không console thì ffmpeg con thoát mã 0xC000013A → luôn tạo với `stdin=DEVNULL`, `CREATE_NO_WINDOW`.
+
+## 23/11/2026 — Hybrid avatar
+- Chia audio: head 7s / mid / tail 8s (audio < 18s → khớp môi toàn bộ). Chi phí chỉ tính head+tail. Từng đoạn chuẩn hóa 1080×976/30fps rồi nối bằng concat filter qua `-/filter_complex` file.

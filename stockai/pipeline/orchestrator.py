@@ -340,7 +340,10 @@ class Orchestrator:
             p = HeyGenProvider()
         else:
             return DemoMotionProvider()
-        cost = p.estimate_cost_usd(15 if name == "hybrid" else duration)
+        if name == "hybrid":
+            from stockai.providers.avatar.hybrid import HybridAvatarProvider
+            p = HybridAvatarProvider(p)
+        cost = p.estimate_cost_usd(duration)
         cap = float(self.repo.get_setting("avatar.max_cost_usd", "5"))
         if cost > cap:  # R-AV-1
             raise ConfigError(f"Chi phí ước tính ${cost:.2f} vượt giới hạn ${cap:.2f}", code="COST_LIMIT",
@@ -396,8 +399,26 @@ class Orchestrator:
         await self.publish(job_id, plats, {}, dry_run=opts.get("dry_run", False))
 
     async def notify_draft(self, job_id: str, say) -> None:
-        """CÓ THỂ gửi bản nháp vào Telegram chat riêng của chủ kênh (nếu đã cấu hình)."""
-        return None
+        """Gửi bản nháp vào Telegram chat riêng của chủ kênh (nếu đã cấu hình). Lỗi chỉ cảnh báo, không làm hỏng job."""
+        from stockai.providers.publish.telegram import TelegramPublisher
+
+        chat = (self.repo.get_setting("telegram.draft_chat_id", "") or "").strip()
+        if not chat:
+            return
+        job = self.repo.get_job(job_id)
+        tg = TelegramPublisher(chat, duration=job["duration_s"] or 0,
+                               thumb=Path(job["thumbnail_path"]) if job["thumbnail_path"] else None)
+        if not tg.token:
+            say("WARN", "Có Chat ID bản nháp nhưng chưa có Telegram Bot Token → không gửi bản nháp")
+            return
+        try:
+            script = ScriptOutput.model_validate_json(job["script_json"])
+            title = "[BẢN NHÁP – CHỜ DUYỆT] " + (job["video_title"] or script.video_title)
+            await tg.publish(job_id, Path(job["final_video_path"]), title,
+                             "Mở StockAI Studio → Kho nội dung để duyệt và đăng.", PublishOptions(privacy="private"))
+            say("SUCCESS", f"Đã gửi bản nháp vào Telegram chat {chat}")
+        except Exception as e:  # noqa: BLE001
+            say("WARN", f"Gửi bản nháp Telegram lỗi: {e}")
 
     async def publish(self, job_id: str, platforms: list[str], privacy: dict[str, str], dry_run: bool = False) -> list[dict]:
         from stockai.providers.publish.dry_run import DryRunPublisher

@@ -73,8 +73,17 @@ Phụ đề, nhãn AI, ticker và miễn trừ đều nằm **ngoài** vùng b�
 Đã có: `SsiFastConnectProvider`, `FalAvatarProvider` (+ giới hạn chi phí R-AV-1), `HeyGenProvider` (khung), Facebook Reels (3 bước, giới hạn 30/24h), YouTube (OAuth, `containsSyntheticMedia=true`), TikTok (gửi nháp, `is_aigc=true`), ElevenLabs. Nút "Kiểm tra kết nối" cho từng dịch vụ.
 **Chưa thể kiểm chứng** vì cần tài khoản/khóa của bạn — xem mục 5.
 
-### M8 — Đóng gói ❌ chưa làm
-Chưa đóng gói PyInstaller, khay hệ thống, tự khởi động. Hiện chạy bằng `MoStockAI.bat`.
+### M8 — Đóng gói desktop ✅ (theo cách phù hợp máy có Application Control)
+- **`CaiDat.bat`**: cài 1 lần (FFmpeg, uv, thư viện) → tạo biểu tượng **StockAI Studio** ở Desktop + Start Menu → bật tự khởi động cùng Windows.
+- Mở app **không có cửa sổ đen** (chạy bằng `pythonw.exe` đã ký của Python gốc + `launcher.pyw`).
+- **Icon ở khay hệ thống** (góc phải thanh taskbar): Mở app · Bật/tắt tự khởi động · Thoát. Đóng cửa sổ app thì app vẫn chạy nền để lịch đúng giờ.
+- **Chỉ một phiên**: bấm biểu tượng lần nữa chỉ mở lại giao diện, không chạy trùng lịch.
+- Không dùng PyInstaller: máy này chặn file `.exe` chưa ký (đã thử: `.venv\Scripts\pythonw.exe` bị chặn) → exe đóng gói cũng sẽ bị chặn. Ghi trong DECISIONS.
+- Đã kiểm chứng thật: mở từ lối tắt → chạy job đầy đủ (dữ liệu LIVE, giọng thật) → `final.mp4` 74,1s, chờ duyệt.
+
+### Bổ sung đợt 5 ✅
+- **Hybrid avatar**: khớp môi 7s đầu + 8s cuối bằng provider trả phí, đoạn giữa DemoMotion miễn phí, ghép thành 1 avatar.mp4 (tiết kiệm ~80% chi phí). Có test.
+- **Gửi bản nháp vào Telegram riêng** khi video chờ duyệt: Cài đặt → "Chat ID nhận bản nháp".
 
 ### M9 — Thử nghiệm ❌ không thuộc phạm vi
 
@@ -83,9 +92,11 @@ Chưa đóng gói PyInstaller, khay hệ thống, tự khởi động. Hiện ch
 ## 3. Cách sử dụng
 
 ### 3.1. Mở ứng dụng
-- **Cách dễ nhất:** bấm đúp **`MoStockAI.bat`** trong thư mục dự án. Cửa sổ ứng dụng sẽ mở ra (nếu máy không mở được cửa sổ desktop thì app tự mở bằng trình duyệt).
-- Hoặc trong PowerShell: `uv run python app.py --browser`.
-- **Giữ cửa sổ đen (console) mở** — đóng nó là tắt ứng dụng và lịch.
+- **Lần đầu:** bấm đúp **`CaiDat.bat`** (cài mọi thứ + tạo biểu tượng + tự khởi động cùng Windows).
+- **Hằng ngày:** bấm biểu tượng **StockAI Studio** trên Desktop (hoặc Start Menu). Không có cửa sổ đen.
+- App có **icon ở khay hệ thống** (góc phải dưới, có thể nằm trong mũi tên ^). Đóng cửa sổ app thì app vẫn chạy nền để chạy lịch; muốn tắt hẳn: chuột phải icon → **Thoát**.
+- Cách cũ vẫn dùng được: `MoStockAI.bat` (có cửa sổ console để xem lỗi) hoặc `uv run python app.py --browser`.
+- Nếu bấm biểu tượng mà không thấy gì: xem `data\launcher_error.log`.
 
 ### 3.2. Tạo video đầu tiên (2–3 phút)
 1. Tab **Bảng điều khiển** → chọn loại phiên → bấm **▶ Chạy quy trình ngay**.
@@ -135,15 +146,17 @@ Mở `demo/index.html` bằng trình duyệt (không cần cài gì). Đây là 
 | D2–D3 | YouTube / TikTok | Adapter đã có; cần tạo app Google Cloud (OAuth) và app TikTok (audit) |
 | D4 | Avatar khớp môi & ngân sách | fal.ai đã có adapter + giới hạn chi phí; HeyGen mới có khung (chưa kiểm chứng API v3) |
 | — | Facebook Reels | Cần Page ID + Page Token |
-| M8 | Đóng gói cài đặt 1 click, khay hệ thống, tự khởi động | Chưa làm |
-| — | Chế độ Hybrid (khớp môi 15 giây đầu/cuối) | Mới tính chi phí; composer chưa ghép nhiều đoạn avatar |
-| — | Gửi bản nháp vào Telegram riêng khi chờ duyệt | Chưa làm (tùy chọn "CÓ THỂ") |
+| M8 | Đóng gói | ✅ Xong (lối tắt + khay + tự khởi động). File .exe đơn lẻ không làm vì máy chặn exe chưa ký |
+| — | Hybrid avatar | ✅ Xong; cần fal.ai key để chạy thật phần khớp môi |
+| — | Bản nháp Telegram riêng | ✅ Xong; cần Bot Token + Chat ID của bạn |
 
 ## 6. Cấu trúc dự án
 
 ```text
 app.py                 cửa sổ desktop + server (fallback trình duyệt)
-MoStockAI.bat          mở app bằng 1 cú bấm đúp
+CaiDat.bat             cài 1 lần + tạo biểu tượng Desktop/Start Menu + tự khởi động
+launcher.pyw           khởi động không console (lối tắt trỏ vào đây)
+MoStockAI.bat          mở app kèm console (xem lỗi)
 stockai/               mã nguồn (config, layout, models, db, server, pipeline, providers, analysis, text, render, scheduler, cli)
 ui/                    giao diện (HTML + JS + CSS, chạy offline)
 assets/fonts/          Be Vietnam Pro (OFL)

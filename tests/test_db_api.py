@@ -98,3 +98,37 @@ def test_schedule_crud(client):
     row = get_repo().get_schedule(sid)
     assert row["require_approval"] == 1  # TikTok luôn cần duyệt
     assert c.delete(f"/api/schedules/{sid}", headers=h).status_code == 200
+
+
+async def test_publish_dry_run_all_platforms_with_native_privacy(tmp_path):
+    """Hồi quy: privacy riêng của TikTok (SELF_ONLY) không được làm vỡ bước đăng."""
+    import json
+
+    from stockai.pipeline.orchestrator import Orchestrator
+    from stockai.providers.llm.template_fallback import TemplateFallbackProvider
+    from tests.conftest import FIX  # noqa: F401
+
+    o = Orchestrator()
+    (tmp_path / "final.mp4").write_bytes(b"x")
+    o.repo.create_job("job-pub", "2026-11-23", "ADHOC", "MANUAL", "DEMO", None, str(tmp_path))
+    from datetime import date
+
+    from stockai.analysis.indicators import build_snapshot
+    from stockai.models import ScriptContext
+    from stockai.providers.market.csv_import import CsvImportProvider
+    from tests.conftest import FIX as F
+
+    snap = build_snapshot(await CsvImportProvider(F / "ohlcv_vnindex_60.csv").fetch_daily("VNINDEX"), "f", "LIVE")
+    from stockai.models import NewsItem
+    news = [NewsItem(title=f"Cổ phiếu tin {i}", source="CafeF", url=f"u{i}", published_at="2026-11-23T07:00:00+07:00",
+                     content_hash=str(i)) for i in range(3)]
+    sc = await TemplateFallbackProvider().generate(ScriptContext(run_date=date(2026, 11, 23), session_type="ADHOC",
+                                                                 market=snap, news=news, hook_style="tin nóng nhất"))
+    o.repo.update_job("job-pub", script_json=sc.model_dump_json(), final_video_path=str(tmp_path / "final.mp4"),
+                      ai_label_applied=1, data_quality="LIVE")
+    res = await o.publish("job-pub", ["telegram", "facebook", "youtube", "tiktok"], {"tiktok": "SELF_ONLY"}, dry_run=True)
+    assert [r["status"] for r in res] == ["DRY_RUN"] * 4
+    prev = json.loads((tmp_path / "publish_preview.json").read_text(encoding="utf-8"))
+    assert prev["tiktok"]["flags"]["is_aigc"] and prev["youtube"]["flags"]["containsSyntheticMedia"]
+    assert prev["tiktok"]["platform_privacy"] == "SELF_ONLY"
+    assert o.repo.get_job("job-pub")["status"] == "COMPLETED"

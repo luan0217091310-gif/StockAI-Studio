@@ -101,7 +101,13 @@ def make_news_card(h: NewsHighlight, source: str, out: Path, idx: int, synthetic
         d.text((96, y), ln, font=fh, fill=(249, 250, 251))
         y += int(size * 1.25)
     fb = font(32, "regular")
-    for ln in wrap(h.brief, fb, 900)[:2]:
+    brief_lines = wrap(h.brief, fb, 900)
+    if len(brief_lines) > 2:
+        brief_lines = brief_lines[:2]
+        while fb.getlength(brief_lines[1] + "…") > 900 and " " in brief_lines[1]:
+            brief_lines[1] = brief_lines[1].rsplit(" ", 1)[0]
+        brief_lines[1] += "…"
+    for ln in brief_lines:
         d.text((96, y + 20), ln, font=fb, fill=(203, 213, 225))
         y += 44
     d.text((96, 590), f"Nguồn: {source}", font=font(24, "semibold"), fill=(100, 116, 139))

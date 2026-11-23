@@ -7,6 +7,8 @@ import threading
 import time
 import webbrowser
 
+import stockai  # noqa: F401  — nạp trước uvicorn (vá _multiprocessing nếu bị Application Control chặn)
+
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 

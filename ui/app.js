@@ -77,6 +77,11 @@ async function refreshStatus() {
   $("#banner").textContent = prod ? "● PRODUCTION — luôn duyệt trước khi đăng" : "⚗ Chế độ demo: dữ liệu công khai/minh họa, avatar chuyển động nhẹ, không tốn phí";
   nextAt = status.next_run_at ? new Date(status.next_run_at) : null;
   setRunning(!!status.running_job);
+  if (status.running_job && currentJob !== status.running_job) {  // mở trang giữa lúc job đang chạy → nạp log cũ
+    currentJob = status.running_job; $("#jobLbl").textContent = "· job " + currentJob.slice(0,8);
+    const j = await api("/api/jobs/" + currentJob).catch(() => null);
+    if (j) { logLines = []; j.events.forEach(e => termWrite({...e, ts: e.ts})); setProgress(j.current_step, j.progress_pct); }
+  }
   if (status.interrupted && !refreshStatus.warned) { refreshStatus.warned = true; toast(`${status.interrupted} job bị gián đoạn lần trước đã chuyển sang Lỗi (INTERRUPTED)`, "warn"); }
   $("#pfBanner").innerHTML = status.preflight_ok === false ? `<div class="errbox">⚠ Môi trường chưa đủ (FFmpeg/filter/font). Xem Cài đặt → Kiểm tra môi trường. Gợi ý: <code>winget install Gyan.FFmpeg</code></div>` : "";
 }

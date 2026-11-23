@@ -2,17 +2,20 @@
 
 > Cập nhật sau mỗi phần việc. Mới nhất ở trên cùng.
 
+## 23/11/2026 — đợt 4 (hoàn thiện bản demo)
+- [x] Chạy app thật, chụp UI, chạy job qua API (giọng edge-tts thật, 74,1s), duyệt dry-run 4 nền tảng.
+- [x] Sửa: privacy riêng của TikTok (SELF_ONLY) làm vỡ bước đăng → ánh xạ về tập chuẩn + test hồi quy.
+- [x] Sửa: UI nạp lại log khi mở trang giữa lúc job chạy; thẻ tin thêm "…" khi cắt tóm tắt.
+- [x] README, CLAUDE.md, .env.example, MoStockAI.bat, BAO_CAO.md (tổng kết + hướng dẫn sử dụng).
+- [ ] Chưa làm: M8 (đóng gói PyInstaller, khay hệ thống), Hybrid avatar nhiều đoạn, kiểm chứng thật các API trả phí (cần khóa).
+
+## 23/11/2026 — đợt 3
+- [x] M5: FastAPI đủ endpoint Mục 11, WebSocket, token + Origin, path traversal, UI 5 tab nối API.
+- [x] M6: Scheduler (đồng bộ CRUD, chạy bù, retry, skip), luồng chờ duyệt → đăng.
+- [x] Tests: 52 pass.
+
 ## 23/11/2026 — đợt 2
-- [x] M2: LLM providers (Gemini, OpenAI-compatible, TemplateFallback), prompt đúng Mục 9.4, hậu kiểm + gọi lại có feedback + fallback.
-- [x] M3: chuẩn hóa TTS, edge-tts (WordBoundary + retry), offline TTS, ElevenLabs adapter, subtitles SRT/ASS (≤2 dòng, ≤800px).
-- [x] M4: ffmpeg runner + preflight, chart (mplfinance), cards (Pillow), DemoMotion, composer 2 giai đoạn, kiểm tra ffprobe, thumbnail, safe_zone_check.
-- [x] Publishers: dry-run, Telegram, Facebook Reels, YouTube (OAuth), TikTok (nháp, is_aigc).
-- [x] Orchestrator: lock, cancel, retry từ bước lỗi, manifest + checksum, job_events.
-- [x] CLI: `python -m stockai preflight | run | render-sample | serve | db migrate | cleanup | youtube-login`.
-- [x] **Chạy thật end-to-end**: RSS thật + Vietcap thật → final.mp4 1080×1920, 30fps, 81,9s, 6,3 MB, đạt ffprobe.
-- [ ] Còn lại: API + WebSocket + bảo mật, UI 5 tab nối API, scheduler, app.py (pywebview), tests, README, báo cáo.
+- [x] M2–M4, publishers, orchestrator, CLI. Chạy thật end-to-end ra final.mp4.
 
 ## 23/11/2026 — đợt 1
-- [x] Bản demo giao diện chạy trong trình duyệt (`demo/index.html`).
-- [x] Cài môi trường: FFmpeg 9.1, uv 0.13.9, Python 3.12, font Be Vietnam Pro.
-- [x] M0/M1 lõi: config, layout, models, errors, secrets, DB, chỉ báo, RSS, provider thị trường.
+- [x] Demo HTML, cài môi trường (FFmpeg, uv, Python 3.12, font), M0/M1 lõi.

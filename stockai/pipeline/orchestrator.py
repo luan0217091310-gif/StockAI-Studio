@@ -418,11 +418,18 @@ class Orchestrator:
             if self.repo.has_success(job_id, p):  # R-PUB-2
                 say("INFO", f"{p}: đã đăng thành công trước đó → bỏ qua")
                 continue
-            opts = PublishOptions(privacy=privacy.get(p, self.repo.get_setting("publish.default_privacy", "private")),
+            raw_priv = privacy.get(p, self.repo.get_setting("publish.default_privacy", "private"))
+            # Ánh xạ mức riêng của nền tảng (SELF_ONLY, channel, published…) về tập chuẩn của PublishOptions (Mục 8)
+            std = {"SELF_ONLY": "private", "MUTUAL_FOLLOW_FRIENDS": "unlisted", "PUBLIC_TO_EVERYONE": "public",
+                   "channel": "public", "published": "public"}.get(raw_priv, raw_priv)
+            opts = PublishOptions(privacy=std if std in ("public", "unlisted", "private", "draft") else "private",
                                   dry_run=dry_run or blocked)
+            if p == "tiktok":
+                self._tiktok_privacy = raw_priv
             try:
                 if opts.dry_run or job["mode"] == "DEMO" and p != "telegram":
-                    pub = DryRunPublisher(p, {**caps[p], "flags": {"is_aigc": True} if p == "tiktok" else
+                    pub = DryRunPublisher(p, {**caps[p], "platform_privacy": raw_priv,
+                                              "flags": {"is_aigc": True} if p == "tiktok" else
                                               {"containsSyntheticMedia": True} if p == "youtube" else {}})
                     res, attempt = await pub.publish(job_id, video, title, text, opts), 1
                 else:
@@ -459,7 +466,7 @@ class Orchestrator:
             return YouTubePublisher(hashtags, self.repo.get_setting("youtube.category_id", "25"))
         if p == "tiktok":
             from stockai.providers.publish.tiktok import TikTokPublisher
-            return TikTokPublisher()
+            return TikTokPublisher(privacy_level=getattr(self, "_tiktok_privacy", "SELF_ONLY"))
         raise ConfigError(f"Nền tảng không hỗ trợ: {p}")
 
 

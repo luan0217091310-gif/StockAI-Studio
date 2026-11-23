@@ -26,6 +26,7 @@ dependencies = [
     "keyring>=25",
     "platformdirs>=4",
     "typer>=0.12",
+    "six>=1.17.0",
 ]
 
 [project.scripts]

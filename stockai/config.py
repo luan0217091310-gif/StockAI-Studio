@@ -80,5 +80,28 @@ def data_dir() -> Path:
     return p
 
 
+def setup_logging(level: str | None = None) -> None:
+    """Log xoay vòng 5 file × 5 MB trong logs/, che bí mật (R-SEC-5)."""
+    import logging
+    from logging.handlers import RotatingFileHandler
+
+    from stockai.secrets import redact
+
+    class Redact(logging.Filter):
+        def filter(self, record):
+            record.msg = redact(str(record.msg))
+            return True
+
+    root = logging.getLogger("stockai")
+    if root.handlers:
+        return
+    h = RotatingFileHandler(data_dir() / "logs" / "stockai.log", maxBytes=5 * 1024 * 1024, backupCount=5, encoding="utf-8")
+    h.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s"))
+    h.addFilter(Redact())
+    root.addHandler(h)
+    root.setLevel(level or os.environ.get("LOG_LEVEL", "INFO"))
+    root.propagate = False
+
+
 def is_offline() -> bool:
     return os.environ.get("STOCKAI_OFFLINE", "") in ("1", "true", "yes")

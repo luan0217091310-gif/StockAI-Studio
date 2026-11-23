@@ -121,9 +121,13 @@ class Repo:
     def save_snapshot(self, snap: dict, top_movers: list | None = None) -> int | None:
         if snap["data_quality"] == "SYNTHETIC":
             return None  # không bao giờ lưu dữ liệu minh họa
-        self.x("""INSERT OR REPLACE INTO market_snapshots(symbol, session_date, close, change, change_pct, volume,
+        self.x("""INSERT INTO market_snapshots(symbol, session_date, close, change, change_pct, volume,
                 value_bn_vnd, foreign_net_bn_vnd, sma20, rsi14, support20, resistance20, bars_json, top_movers_json, source)
-                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                ON CONFLICT(symbol, session_date, source) DO UPDATE SET close=excluded.close, change=excluded.change,
+                change_pct=excluded.change_pct, volume=excluded.volume, sma20=excluded.sma20, rsi14=excluded.rsi14,
+                support20=excluded.support20, resistance20=excluded.resistance20, bars_json=excluded.bars_json,
+                created_at=datetime('now')""",
                (snap["symbol"], str(snap["session_date"]), snap["close"], snap["change"], snap["change_pct"], snap.get("volume"),
                 snap.get("value_bn_vnd"), snap.get("foreign_net_bn_vnd"), snap["sma20"], snap["rsi14"], snap["support20"],
                 snap["resistance20"], json.dumps(snap["bars"], default=str), json.dumps(top_movers) if top_movers else None,

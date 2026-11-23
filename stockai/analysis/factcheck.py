@@ -7,7 +7,7 @@ from stockai.models import ScriptContext, ScriptOutput
 
 NUM_RE = re.compile(r"(?<![\w])[+-]?\d{1,3}(?:\.\d{3})+(?:,\d+)?|(?<![\w.,])[+-]?\d+(?:,\d+)?")
 TICKER_RE = re.compile(r"\b[A-Z]{3}\b")
-TICKER_WHITELIST = {"SMA", "RSI", "HNX", "VND", "USD", "ETF", "GDP", "CPI", "FED", "NHNN"}
+TICKER_WHITELIST = {"SMA", "RSI", "HNX", "VND", "USD", "ETF", "GDP", "CPI", "FED", "NHNN", "TIN", "SAU", "THEO", "CHO", "VAN"}
 SMALL_NUMBERS = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 14, 20, 60}
 
 

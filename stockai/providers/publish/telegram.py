@@ -1,5 +1,6 @@
 """Telegram Bot API: sendVideo (≤50MB, caption ≤1024) + sendMessage bài đầy đủ (≤4096/tin, HTML)."""
 
+import contextlib
 import json
 from pathlib import Path
 
@@ -42,10 +43,11 @@ class TelegramPublisher:
         if video.stat().st_size > 50 * 1024 * 1024:
             return PublishResult(platform="telegram", status="FAILED", error_message="Video > 50 MB")
         cap = captions.telegram_caption(title, text)
-        async with httpx.AsyncClient(timeout=300) as c:
-            files = {"video": (video.name, video.open("rb"), "video/mp4")}
+        async with httpx.AsyncClient(timeout=300) as c, contextlib.ExitStack() as stack:
+            # ExitStack đóng file video/thumbnail kể cả khi request lỗi (tránh khóa file trên Windows khi xóa job)
+            files = {"video": (video.name, stack.enter_context(video.open("rb")), "video/mp4")}
             if self.thumb and self.thumb.exists():
-                files["thumbnail"] = (self.thumb.name, self.thumb.open("rb"), "image/jpeg")
+                files["thumbnail"] = (self.thumb.name, stack.enter_context(self.thumb.open("rb")), "image/jpeg")
             r = await c.post(f"{self.api}/sendVideo", files=files,
                              data={"chat_id": self.chat_id, "caption": cap, "parse_mode": "HTML", "supports_streaming": "true",
                                    "width": "1080", "height": "1920", "duration": str(int(self.duration))})

@@ -2,6 +2,13 @@
 
 > Cập nhật sau mỗi phần việc. Mới nhất ở trên cùng.
 
+## 26/11/2026 — đợt 6 (thiết kế lại + web demo + backend)
+- [x] Web demo mới: trang giới thiệu (hero video 9:16 dựng thật bằng canvas, pipeline cuộn, bento, playground factcheck, bộ ước tính chi phí, FAQ) + Studio (sidebar thu gọn, KPI sparkline, stepper 5 bước, terminal lọc cấp độ, drawer chi tiết, lịch dạng tuần, bảng lệnh Ctrl K, phím tắt 1–5).
+- [x] Deploy Cloudflare: `wrangler.jsonc`, `_headers` (CSP…), `404.html`, `robots.txt`, `sitemap.xml`, manifest, ảnh OG.
+- [x] Giao diện app desktop dùng cùng design system; sparkline VN-Index.
+- [x] Backend: publish lock (409), privacy TikTok theo lượt, chạy bù mọi lịch lỡ, TTS đọc lại an toàn, đóng file Telegram, 404 khi sửa job không tồn tại. +6 test hồi quy → 60 test đạt, ruff sạch.
+- [x] Kiểm thử bằng trình duyệt thật (Edge headless qua CDP): landing desktop/mobile, Studio đủ 5 tab, app thật chạy offline ra final.mp4 78,5s — không lỗi console.
+
 ## 23/11/2026 — đợt 5 (M8 + phần dở)
 - [x] Bản nháp Telegram riêng khi chờ duyệt (`telegram.draft_chat_id`, lỗi chỉ cảnh báo).
 - [x] Hybrid avatar: head 7s + tail 8s khớp môi, giữa DemoMotion, concat → avatar.mp4 (+2 test).

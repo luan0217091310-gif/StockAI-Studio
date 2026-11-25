@@ -16,8 +16,8 @@
 | Lịch tự động + chạy bù + duyệt bài | ✅ |
 | Đăng bài: Telegram thật, FB/YouTube/TikTok (adapter) + dry-run | ✅ (đăng thật cần bạn nhập khóa) |
 | Bảo mật (token, Origin, keyring, chống path traversal, che token trong log) | ✅ |
-| Test tự động | ✅ **52 test đạt**, `ruff` sạch |
-| Bản demo xem nhanh không cần cài (`demo/index.html`) | ✅ |
+| Test tự động | ✅ **60 test đạt**, `ruff` sạch |
+| Web demo online (trang giới thiệu + Studio, `demo/`) | ✅ https://stockai-studio.luan0017091310.workers.dev |
 
 ### Ảnh kết quả
 
@@ -126,8 +126,8 @@ Tab **Lịch tự động**: đã có sẵn 07:30 (trước phiên) và 15:30 (s
 ### 3.8. Các file của mỗi video
 Kho nội dung → **Mở thư mục**. Trong đó có `final.mp4`, `thumbnail.jpg`, `subs.srt`, `voice.mp3`, `chart.png`, `script.json`, `manifest.json`, `safe_zone_check.png`…
 
-### 3.9. Bản demo xem nhanh
-Mở `demo/index.html` bằng trình duyệt (không cần cài gì). Đây là bản **mô phỏng giao diện** chạy hoàn toàn bằng JavaScript — chỉ để xem trước; bản thật là ứng dụng ở trên.
+### 3.9. Web demo
+Mở https://stockai-studio.luan0017091310.workers.dev (hoặc `demo/index.html` trên máy). Trang giới thiệu + **Studio** (`app.html`) mô phỏng đủ 5 bước ngay trên trình duyệt: dữ liệu minh họa, kịch bản mẫu qua factcheck thật, video 9:16 dựng bằng canvas, đăng bài dạng dry-run. Bảng lệnh: `Ctrl K`; chuyển tab: phím `1`–`5`. Bản thật là ứng dụng desktop ở trên.
 
 ---
 
@@ -160,8 +160,8 @@ MoStockAI.bat          mở app kèm console (xem lỗi)
 stockai/               mã nguồn (config, layout, models, db, server, pipeline, providers, analysis, text, render, scheduler, cli)
 ui/                    giao diện (HTML + JS + CSS, chạy offline)
 assets/fonts/          Be Vietnam Pro (OFL)
-tests/                 52 test + fixture (RSS tự tạo, OHLCV 60 phiên, audio 8s)
-demo/index.html        bản demo giao diện xem nhanh
+tests/                 60 test + fixture (RSS tự tạo, OHLCV 60 phiên, audio 8s)
+demo/                  web demo: index.html (giới thiệu) + app.html (Studio) + assets/engine.js
 docs/                  BLUEPRINT, DECISIONS, PROGRESS, ảnh minh họa
 ```
 
@@ -170,7 +170,7 @@ docs/                  BLUEPRINT, DECISIONS, PROGRESS, ảnh minh họa
 ```text
 uv run python -m stockai preflight      → Môi trường SẴN SÀNG (FFmpeg 9.1 + 7 filter + libx264/aac, font, SQLite 10 bảng, keyring)
 uv run ruff check .                     → All checks passed!
-uv run python -m pytest -q              → 52 passed
+uv run python -m pytest -q              → 60 passed
 uv run python -m stockai run --mode demo --no-publish   → COMPLETED, final.mp4 đạt ffprobe
 API: thiếu token → 401 · Origin lạ → 403 · chạy job thứ 2 → 409 · duyệt dry-run 4 nền tảng → DRY_RUN ×4
 ```

@@ -1,0 +1,11 @@
+// Cloudflare Workers — chỉ phục vụ web demo tĩnh trong thư mục demo/ (không có mã server).
+// Deploy: tự động khi push nhánh main (Workers Builds: npx wrangler deploy) hoặc chạy tay `npx wrangler deploy`.
+{
+  "$schema": "https://unpkg.com/wrangler/config-schema.json",
+  "name": "stockai-studio",
+  "compatibility_date": "2025-09-01",
+  "assets": {
+    "directory": "./demo",
+    "not_found_handling": "404-page"
+  }
+}

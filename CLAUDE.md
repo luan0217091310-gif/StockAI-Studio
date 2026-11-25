@@ -16,6 +16,7 @@
 - Chạy pipeline offline: `uv run python -m stockai run --mode demo --offline --no-publish`
 - Mở app: `uv run python app.py` (hoặc `--browser`)
 - Test: `uv run python -m pytest -q` (test cần mạng/chậm: `-m network`)
+- Web demo: `demo/` (tĩnh, JS thuần). Logic dùng chung ở `demo/assets/engine.js` — khi đổi luật nghiệp vụ trong Python (template, factcheck, layout) phải sửa cả file này. Deploy = push `main` (`wrangler.jsonc`).
 
 ## Ràng buộc cứng
 - KHÔNG thêm vnstock/vnai. KHÔNG hardcode API key; bí mật chỉ qua stockai/secrets.py (keyring).

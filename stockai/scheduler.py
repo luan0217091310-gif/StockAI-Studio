@@ -84,7 +84,9 @@ class Scheduler:
                            args=[schedule_id, trigger, attempt], id=f"retry-{schedule_id}-{attempt}", replace_existing=True)
 
     async def catchup(self) -> list[int]:
-        """Lúc khởi động: lịch hôm nay bị lỡ trong vòng catchup_minutes và chưa có job → chạy bù."""
+        """Lúc khởi động: lịch hôm nay bị lỡ trong vòng catchup_minutes và chưa có job → chạy bù.
+
+        Mọi lịch bị lỡ đều được chạy bù, lần lượt theo giờ (mỗi lúc một job), thay vì chỉ lịch đầu tiên."""
         now = datetime.now(VN)
         window = int(self.repo.get_setting("schedule.catchup_minutes", "120"))
         fired = []
@@ -104,12 +106,19 @@ class Scheduler:
             if late <= window:
                 log.info("Chạy bù lịch %s (lỡ %.0f phút)", s["name"], late)
                 fired.append(s["id"])
-                asyncio.get_event_loop().create_task(self.fire(s["id"], "CATCHUP"))
-                break  # mỗi lần một job
             else:
                 bus.publish({"type": "log", "job_id": None, "step": None, "level": "WARN",
                              "message": f"Đã lỡ lịch “{s['name']}” lúc {at:%H:%M} (quá {window} phút)"})
+        if fired:
+            self._catchup_task = asyncio.get_running_loop().create_task(self._run_sequential(fired))
         return fired
+
+    async def _run_sequential(self, schedule_ids: list[int]) -> None:
+        for sid in schedule_ids:  # fire() chờ job xong mới trả về → không chạy chồng
+            try:
+                await self.fire(sid, "CATCHUP")
+            except Exception:  # noqa: BLE001
+                log.exception("Chạy bù lịch %s lỗi", sid)
 
 
 def prevent_sleep(on: bool) -> None:

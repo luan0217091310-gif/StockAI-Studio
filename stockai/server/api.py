@@ -93,7 +93,8 @@ async def status():
     market = None
     if last and last["artifacts_dir"] and (Path(last["artifacts_dir"]) / "market.json").exists():
         m = json.loads((Path(last["artifacts_dir"]) / "market.json").read_text(encoding="utf-8"))
-        m.pop("bars", None)
+        bars = m.pop("bars", None) or []
+        m["spark"] = [b["close"] for b in bars[-30:]]  # sparkline 30 phiên cho thẻ VN-Index
         market = m
     return {
         "mode": r.get_setting("mode"), "running_job": orch().current_job,
@@ -175,6 +176,8 @@ class JobEdit(BaseModel):
 async def edit_job(job_id: str, b: JobEdit):
     import unicodedata
 
+    if not repo().get_job(job_id):
+        raise HTTPException(404, "Không tìm thấy job")
     fields = {k: unicodedata.normalize("NFC", v) for k, v in b.model_dump().items() if v is not None}
     if "video_title" in fields and len(fields["video_title"]) > 80:
         raise HTTPException(400, "Tiêu đề tối đa 80 ký tự")

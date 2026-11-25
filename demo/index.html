@@ -3,1054 +3,352 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>StockAI Studio</title>
-<style>
-:root{
-  --bg:#0B1120; --panel:#0F172A; --card:#111827; --line:#1F2937; --text:#E5E7EB; --muted:#9CA3AF;
-  --up:#10B981; --down:#F43F5E; --act:#3B82F6; --warn:#F59E0B; --purple:#8B5CF6;
-}
-*{box-sizing:border-box}
-html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:"Be Vietnam Pro","Segoe UI",system-ui,sans-serif}
-button,input,select,textarea{font:inherit;color:inherit}
-button{cursor:pointer}
-.top{display:flex;align-items:center;gap:16px;padding:14px 24px;border-bottom:1px solid var(--line);background:#0a0f1c;position:sticky;top:0;z-index:5}
-.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:20px;white-space:nowrap}
-.banner{margin-left:auto;background:rgba(139,92,246,.15);color:#c4b5fd;border:1px solid rgba(139,92,246,.35);padding:6px 14px;border-radius:999px;font-size:14px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;max-width:60%}
-.banner.prod{background:rgba(59,130,246,.15);color:#93c5fd;border-color:rgba(59,130,246,.4)}
-.wrap{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 62px)}
-nav{border-right:1px solid var(--line);padding:16px;display:flex;flex-direction:column;gap:8px}
-nav button{display:flex;align-items:center;gap:12px;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;font-size:15px}
-nav button.on{border-color:var(--up);background:rgba(16,185,129,.08)}
-nav button svg{flex:none}
-main{padding:20px 24px;min-width:0}
-.tab{display:none}.tab.on{display:block}
-.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:16px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
-.card .k{color:var(--muted);font-size:14px}
-.card .v{font-size:30px;font-weight:700;margin:4px 0}
-.card .s{color:var(--muted);font-size:14px}
-.badge{display:inline-block;font-size:12px;padding:2px 8px;border-radius:999px;margin-left:6px;vertical-align:middle;font-weight:600}
-.b-syn{background:rgba(245,158,11,.18);color:#fbbf24}.b-live{background:rgba(16,185,129,.18);color:#34d399}
-.b-wait{background:rgba(245,158,11,.18);color:#fbbf24}.b-ok{background:rgba(16,185,129,.18);color:#34d399}
-.b-fail{background:rgba(244,63,94,.18);color:#fb7185}.b-dry{background:rgba(59,130,246,.18);color:#93c5fd}
-.up{color:var(--up)}.down{color:var(--down)}
-.dash{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px}
-.run{width:100%;padding:16px;font-size:19px;border-radius:14px;border:1px solid var(--line);background:var(--card);display:flex;align-items:center;justify-content:center;gap:10px}
-.run:hover{border-color:var(--act)}
-.run.busy{border-color:var(--down);color:#fda4af}
-.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:12px 0}
-.step{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;font-size:14px;text-align:center;position:relative;overflow:hidden;min-height:58px}
-.step .bar{position:absolute;left:0;bottom:0;height:3px;background:var(--up);width:0;transition:width .3s}
-.step.doing{border-color:var(--act)}.step.done{border-color:var(--up);color:#a7f3d0}.step.err{border-color:var(--down)}
-.term{background:#05070d;border:1px solid var(--line);border-radius:12px;height:380px;overflow:auto;padding:12px 14px;font-family:Consolas,"Cascadia Mono",monospace;font-size:13px;line-height:1.55;position:relative}
-.term .INFO{color:#cbd5e1}.term .SUCCESS{color:#34d399}.term .WARN{color:#fbbf24}.term .ERROR{color:#fb7185}.term .DEBUG{color:#64748b}
-.term .ts{color:#475569}
-.termbar{display:flex;justify-content:space-between;align-items:center;margin:12px 0 6px;color:var(--muted);font-size:13px}
-.btn{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 14px}
-.btn:hover{border-color:#374151}
-.btn.pri{background:var(--act);border-color:var(--act);color:#fff}
-.btn.ok{background:var(--up);border-color:var(--up);color:#04130d}
-.btn.danger{border-color:rgba(244,63,94,.5);color:#fda4af}
-.btn:disabled{opacity:.45;cursor:not-allowed}
-.phone{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:10px;text-align:center}
-.phone canvas{width:100%;aspect-ratio:9/16;border-radius:10px;background:#000;display:block}
-.phone .ctl{display:flex;gap:6px;align-items:center;margin-top:8px}
-.phone input[type=range]{flex:1}
-.muted{color:var(--muted)}.small{font-size:13px}
-.prog{height:6px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:10px}
-.prog>div{height:100%;background:linear-gradient(90deg,var(--act),var(--up));width:0;transition:width .3s}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-label.f{display:block;margin:10px 0 4px;color:var(--muted);font-size:13px}
-input[type=text],input[type=password],input[type=time],select,textarea{width:100%;background:#0b1222;border:1px solid var(--line);border-radius:10px;padding:9px 11px}
-textarea{min-height:220px;resize:vertical;line-height:1.5}
-h2{margin:0 0 12px;font-size:20px}h3{margin:0 0 8px;font-size:16px}
-.joblist{display:flex;flex-direction:column;gap:8px}
-.job{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer}
-.job.sel{border-color:var(--act)}.job.wait{border-color:rgba(245,158,11,.55)}
-.detail{display:grid;grid-template-columns:320px 1fr;gap:16px;margin-top:16px}
-.subtabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
-.subtabs button{background:transparent;border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:13px}
-.subtabs button.on{background:var(--act);border-color:var(--act);color:#fff}
-.pane{display:none}.pane.on{display:block}
-pre.box{white-space:pre-wrap;background:#0b1222;border:1px solid var(--line);border-radius:10px;padding:12px;margin:0;font-family:inherit;font-size:14px;line-height:1.6;max-height:420px;overflow:auto}
-table{width:100%;border-collapse:collapse;font-size:14px}
-td,th{border-bottom:1px solid var(--line);padding:9px 8px;text-align:left}
-th{color:var(--muted);font-weight:500}
-.switch{position:relative;display:inline-block;width:42px;height:24px;vertical-align:middle}
-.switch input{display:none}
-.switch span{position:absolute;inset:0;background:#374151;border-radius:99px;transition:.2s}
-.switch span:before{content:"";position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
-.switch input:checked+span{background:var(--up)}
-.switch input:checked+span:before{transform:translateX(18px)}
-.note{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.35);color:#fcd34d;border-radius:10px;padding:10px 12px;font-size:14px;margin:10px 0}
-.info{background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.35);color:#bfdbfe;border-radius:10px;padding:10px 12px;font-size:14px;margin:10px 0}
-.drop{border:2px dashed #374151;border-radius:12px;padding:18px;text-align:center;color:var(--muted);cursor:pointer}
-.drop:hover{border-color:var(--act)}
-.chk{display:flex;gap:8px;align-items:flex-start;margin:8px 0;font-size:14px}
-.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.toast{position:fixed;right:20px;bottom:20px;background:#111827;border:1px solid var(--line);border-left:4px solid var(--up);padding:12px 16px;border-radius:10px;max-width:380px;z-index:20;display:none}
-.pub{display:grid;grid-template-columns:24px 110px 1fr;gap:8px;align-items:center;margin:6px 0}
-@media (max-width:1100px){.dash,.detail,.grid2{grid-template-columns:1fr}.cards{grid-template-columns:repeat(2,1fr)}.wrap{grid-template-columns:1fr}nav{flex-direction:row;overflow:auto;border-right:0;border-bottom:1px solid var(--line)}nav button{white-space:nowrap}}
-</style>
+<title>StockAI Studio — Bản tin chứng khoán video 9:16 tự động bằng AI</title>
+<meta name="description" content="StockAI Studio tự động thu thập tin, viết kịch bản có kiểm chứng số liệu, đọc giọng tiếng Việt, dựng video 9:16 với MC ảo và chờ bạn duyệt trước khi đăng lên Telegram, Facebook Reels, YouTube Shorts, TikTok.">
+<meta name="theme-color" content="#05070d">
+<meta property="og:title" content="StockAI Studio — Bản tin chứng khoán video tự động">
+<meta property="og:description" content="Thu thập → AI biên tập → Giọng & Avatar → Dựng video 9:16 → Duyệt & Đăng. Gắn nhãn AI đúng Luật Trí tuệ nhân tạo 2026.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2310b981'/%3E%3Cpath d='M9 22v-5M16 22V11M23 22v-8' stroke='%2303140d' stroke-width='3.5' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="canonical" href="https://stockai-studio.luan0017091310.workers.dev/">
+<link rel="manifest" href="manifest.webmanifest">
+<meta property="og:url" content="https://stockai-studio.luan0017091310.workers.dev/">
+<meta property="og:image" content="https://stockai-studio.luan0017091310.workers.dev/assets/og.png">
+<meta property="og:locale" content="vi_VN">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"StockAI Studio","applicationCategory":"MultimediaApplication","operatingSystem":"Windows 10/11, macOS 13+","inLanguage":"vi","description":"Ứng dụng desktop tự động tạo bản tin chứng khoán video 9:16 có MC ảo nói tiếng Việt, kiểm chứng số liệu bằng code và gắn nhãn AI.","offers":{"@type":"Offer","price":"0","priceCurrency":"VND"}}</script>
+<link rel="preload" href="assets/fonts/BeVietnamPro-Bold.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="stylesheet" href="assets/base.css">
+<link rel="stylesheet" href="assets/landing.css">
 </head>
-<body>
-<div class="top">
-  <div class="brand">
-    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2" stroke-linecap="round"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>
+<body class="landing">
+<a class="skip" href="#main">Bỏ qua tới nội dung chính</a>
+<div class="bg-fx" aria-hidden="true"><div class="aurora a1"></div><div class="aurora a2"></div><div class="aurora a3"></div><div class="grid"></div><div class="noise"></div></div>
+
+<!-- ================= NAV ================= -->
+<header class="nav" id="nav">
+  <a href="#main" class="logo" aria-label="StockAI Studio">
+    <span class="logo-mark"><svg viewBox="0 0 24 24" fill="none" stroke="#03140d" stroke-width="3" stroke-linecap="round"><path d="M6 18v-4M12 18V7M18 18v-7"/></svg></span>
     StockAI Studio
+  </a>
+  <nav class="nav-links" id="navLinks" aria-label="Điều hướng chính">
+    <a href="#quy-trinh">Quy trình</a>
+    <a href="#tinh-nang">Tính năng</a>
+    <a href="#kiem-chung">Kiểm chứng số liệu</a>
+    <a href="#tuan-thu">Tuân thủ</a>
+    <a href="#chi-phi">Chi phí</a>
+    <a href="#faq">Hỏi đáp</a>
+  </nav>
+  <div class="nav-cta">
+    <a class="btn btn-ghost btn-sm" href="https://github.com/luan0217091310-gif/StockAI-Studio" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.08 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02a9.58 9.58 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0 0 12 2Z"/></svg>
+      GitHub</a>
+    <a class="btn btn-primary btn-sm" href="app.html"><span class="hide-sm">Mở </span>Studio<span class="hide-sm"> demo</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    <button class="icon-btn nav-burger" id="burger" aria-label="Mở menu" aria-expanded="false" aria-controls="navLinks"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
   </div>
-  <div class="banner" id="banner">⚗ Chế độ demo: mọi dịch vụ đều mô phỏng, không gửi dữ liệu ra ngoài</div>
-</div>
-<div class="wrap">
-<nav id="nav">
-  <button data-tab="dash" class="on"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Bảng điều khiển</button>
-  <button data-tab="char"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="3"/><path d="M6.5 18.5a6.5 6.5 0 0 1 11 0"/></svg>Nhân vật &amp; giọng</button>
-  <button data-tab="lib"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="M16 10l6-3v10l-6-3"/></svg>Kho nội dung <span id="navWait"></span></button>
-  <button data-tab="sched"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/><circle cx="16" cy="16" r="3"/></svg>Lịch tự động</button>
-  <button data-tab="set"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Cài đặt</button>
-</nav>
-<main>
-<!-- TAB 1 -->
-<section class="tab on" id="tab-dash">
-  <div class="cards">
-    <div class="card"><div class="k">VN-Index <span class="badge b-syn" id="qBadge">minh họa</span></div><div class="v" id="cIdx">—</div><div class="s" id="cChg">Chưa có dữ liệu</div></div>
-    <div class="card"><div class="k">Video đã tạo</div><div class="v" id="cVid">0</div><div class="s" id="cWait">0 chờ duyệt</div></div>
-    <div class="card"><div class="k">Lịch tiếp theo</div><div class="v" id="cNext">--:--</div><div class="s" id="cCount">Chưa có lịch</div></div>
-    <div class="card"><div class="k">Chế độ</div><div class="v" id="cMode">Demo</div><div class="s" id="cCost">0 đồng</div></div>
-  </div>
-  <div id="preflight"></div>
-  <div class="dash">
+</header>
+
+<main id="main">
+<!-- ================= HERO ================= -->
+<section class="hero">
+  <div class="container hero-grid">
     <div>
-      <div class="row" style="gap:8px;flex-wrap:nowrap">
-        <button class="run" id="runBtn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4l14 8-14 8z"/></svg><span>Chạy quy trình ngay</span></button>
-        <select id="sessSel" style="width:180px"><option value="PRE_MARKET">Trước phiên</option><option value="POST_MARKET">Sau phiên</option><option value="ADHOC">Đột xuất</option></select>
+      <a class="pill fade-up" style="--d:.05s" href="#tuan-thu"><b>MỚI</b> Gắn nhãn AI theo Luật Trí tuệ nhân tạo 2026 →</a>
+      <h1>
+        <span class="line"><span style="--d:.1s">Bản tin chứng khoán</span></span>
+        <span class="line"><span style="--d:.22s" class="grad-text">video 9:16, tự động</span></span>
+        <span class="line"><span style="--d:.34s">mỗi sáng.</span></span>
+      </h1>
+      <p class="lead fade-up" style="--d:.5s">StockAI Studio đọc tin, tính chỉ báo, viết kịch bản <b>có kiểm chứng từng con số</b>, đọc giọng tiếng Việt và dựng video với MC ảo của chính bạn. Bạn chỉ cần bấm <b>Duyệt &amp; Đăng</b>.</p>
+      <div class="hero-ctas fade-up" style="--d:.62s">
+        <a class="btn btn-primary btn-lg" href="app.html" data-magnet>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v13.72a1 1 0 0 0 1.52.85l11-6.86a1 1 0 0 0 0-1.7l-11-6.86A1 1 0 0 0 8 5.14Z"/></svg>
+          Chạy thử ngay — miễn phí</a>
+        <a class="btn btn-lg" href="#quy-trinh">Xem cách hoạt động</a>
       </div>
-      <div class="prog"><div id="progBar"></div></div>
-      <div class="steps" id="steps"></div>
-      <div class="termbar"><span>Live Terminal Log</span><span><button class="btn small" id="copyLog">Sao chép log</button> <button class="btn small" id="clrLog">Xóa</button></span></div>
-      <div class="term" id="term"><span class="muted">Bấm "Chạy quy trình ngay" để xem log mô phỏng.</span></div>
+      <div class="hero-meta fade-up" style="--d:.75s">
+        <div><b data-count="5">0</b><span>bước tự động</span></div>
+        <div><b><span data-count="3">0</span> phút</b><span>thay cho 3–4 giờ</span></div>
+        <div><b>0 đ</b><span>ở chế độ Demo</span></div>
+        <div><b data-count="100" data-suffix="%">0</b><span>video có nhãn AI</span></div>
+      </div>
     </div>
-    <div class="phone">
-      <canvas id="dashCanvas" width="540" height="960"></canvas>
-      <div class="ctl"><button class="btn small" id="dashPlay">▶</button><input type="range" id="dashSeek" min="0" max="1000" value="0"><span class="small muted" id="dashTime">0:00</span></div>
-      <div class="small muted" style="margin-top:6px">Xem trước 9:16 · <label><input type="checkbox" id="dashVoice" checked> đọc bằng giọng trình duyệt</label></div>
+
+    <div class="stage fade-up" style="--d:.3s" id="stage">
+      <div class="halo"></div>
+      <div class="phone" id="phone">
+        <div class="screen">
+          <canvas id="heroCanvas" width="540" height="960" aria-label="Xem trước video bản tin 9:16"></canvas>
+          <div class="sz"><i style="left:0;right:0;top:0;height:6.25%"></i><i style="left:0;right:0;top:75%;bottom:0"></i><i style="left:88.9%;right:0;top:43.75%;height:31.25%"></i></div>
+          <div class="glare"></div>
+        </div>
+        <div class="notch"></div>
+      </div>
+      <div class="float-chip fc1" style="--d:0s"><span class="ic" style="background:rgba(16,185,129,.15);color:#34d399"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg></span><div><small>Factcheck số liệu</small><b id="chipFact">32/32 hợp lệ</b></div></div>
+      <div class="float-chip fc2" style="--d:-2s"><span class="ic" style="background:rgba(139,92,246,.18);color:#c4b5fd">AI</span><div><small>Nhãn AI</small><b>Suốt video</b></div></div>
+      <div class="float-chip fc3" style="--d:-4s"><span class="ic" style="background:rgba(56,189,248,.15);color:#7dd3fc"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-6 4 4 8-9"/></svg></span><div><small>RSI14 Wilder</small><b id="chipRsi">—</b></div></div>
+      <div class="float-chip fc4" style="--d:-1s"><span class="ic" style="background:rgba(245,158,11,.15);color:#fcd34d"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/></svg></span><div><small>Lịch kế tiếp</small><b>07:30 T2–T6</b></div></div>
+      <div class="stage-ctl">
+        <button class="btn btn-sm glass" id="szBtn" title="Hiện vùng bị giao diện TikTok/Reels che">Vùng an toàn</button>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- TAB 2 -->
-<section class="tab" id="tab-char">
-  <h2>Nhân vật &amp; giọng đọc</h2>
-  <div class="grid2">
-    <div class="card">
-      <h3>Ảnh chân dung (vùng avatar 1080 × 976)</h3>
-      <canvas id="avPrev" width="540" height="488" style="width:100%;border-radius:10px;background:#000"></canvas>
-      <div class="drop" id="drop" style="margin-top:10px">Kéo-thả hoặc bấm để chọn ảnh chân dung (JPG/PNG)</div>
-      <input type="file" id="avFile" accept="image/*" hidden>
-      <label class="f">Tên người trong ảnh</label>
-      <input type="text" id="consName" placeholder="Ví dụ: Nguyễn Văn A">
-      <label class="f">Quan hệ</label>
-      <select id="consRel"><option value="SELF">Tôi là người trong ảnh</option><option value="AUTHORIZED">Đã được người trong ảnh đồng ý</option></select>
-      <div class="chk"><input type="checkbox" id="consChk"><label for="consChk">Tôi là người trong ảnh hoặc đã được người trong ảnh đồng ý cho sử dụng hình ảnh để tạo MC ảo (R-LEGAL-3).</label></div>
-      <div class="small muted" id="avStatus">Đang dùng ảnh mẫu do app tự vẽ (placeholder).</div>
-      <div class="row" style="margin-top:8px"><button class="btn danger small" id="avReset">Quay về ảnh mẫu</button></div>
-    </div>
-    <div class="card">
-      <h3>Nhà cung cấp avatar</h3>
-      <select id="avProv">
-        <option value="demo">Demo – chuyển động nhẹ (0 đồng, không khớp môi)</option>
-        <option value="fal_std">fal.ai Kling AI Avatar v2 Standard (~$0,0562/giây)</option>
-        <option value="fal_pro">fal.ai Kling AI Avatar v2 Pro (~$0,115/giây)</option>
-        <option value="heygen">HeyGen Photo Avatar (~$0,10/giây)</option>
-        <option value="hybrid">Hybrid: khớp môi 15 giây đầu/cuối (~$0,84/video)</option>
-      </select>
-      <div class="info" id="costEst">Ước tính: 0 đồng/video.</div>
-      <h3 style="margin-top:16px">Giọng đọc</h3>
-      <label class="f">Giọng (edge-tts ở bản thật)</label>
-      <select id="voiceSel"><option value="vi-VN-HoaiMyNeural">vi-VN-HoaiMyNeural (nữ)</option><option value="vi-VN-NamMinhNeural">vi-VN-NamMinhNeural (nam)</option></select>
-      <label class="f">Tốc độ: <b id="rateLbl">+5%</b></label>
-      <input type="range" id="rate" min="-10" max="20" value="5" style="width:100%">
-      <label class="f">Câu nghe thử</label>
-      <input type="text" id="ttsText" value="Xin chào, đây là bản tin chứng khoán của StockAI Studio. VN-Index tăng 0,97%.">
-      <div class="row" style="margin-top:10px"><button class="btn pri" id="ttsBtn">🔊 Nghe thử</button><span class="small muted" id="ttsInfo"></span></div>
-      <div class="small muted" style="margin-top:6px">Văn bản sau chuẩn hóa TTS: <span id="ttsNorm"></span></div>
+<div class="marquee" aria-label="Bảng chỉ số minh họa"><div class="track" id="marquee"></div></div>
+
+<section class="platforms container reveal">
+  <p>Một lần dựng · đăng đúng chuẩn từng nền tảng</p>
+  <div class="plat-row">
+    <span class="plat"><svg viewBox="0 0 24 24" fill="#29a9eb"><path d="M21.9 4.6 18.8 19.3c-.2 1-.8 1.3-1.7.8l-4.7-3.5-2.3 2.2c-.3.3-.5.5-1 .5l.3-4.8 8.8-7.9c.4-.3-.1-.5-.6-.2L6.8 13.2 2.2 11.8c-1-.3-1-1 .2-1.5l18-6.9c.8-.3 1.6.2 1.5 1.2Z"/></svg>Telegram</span>
+    <span class="plat"><svg viewBox="0 0 24 24" fill="#1877f2"><path d="M24 12a12 12 0 1 0-13.9 11.9v-8.4H7.1V12h3V9.4c0-3 1.8-4.7 4.5-4.7 1.3 0 2.7.2 2.7.2v3h-1.5c-1.5 0-2 .9-2 1.9V12h3.4l-.5 3.5h-2.9v8.4A12 12 0 0 0 24 12Z"/></svg>Facebook Reels</span>
+    <span class="plat"><svg viewBox="0 0 24 24" fill="#ff0033"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8ZM9.6 15.6V8.4l6.2 3.6-6.2 3.6Z"/></svg>YouTube Shorts</span>
+    <span class="plat"><svg viewBox="0 0 24 24" fill="#fff"><path d="M19.6 6.7a4.8 4.8 0 0 1-3.8-4.2V2h-3.4v13.7a2.9 2.9 0 0 1-5.2 1.7 2.9 2.9 0 0 1 3.2-4.5V9.4a6.3 6.3 0 0 0-5.4 10.7 6.3 6.3 0 0 0 10.8-4.4V8.7a8.2 8.2 0 0 0 4.8 1.5V6.8l-1-.1Z"/></svg>TikTok</span>
+  </div>
+</section>
+
+<!-- ================= STATS ================= -->
+<section class="sec" style="padding-top:80px">
+  <div class="container stats">
+    <div class="card stat spot reveal"><b><span data-count="20">0</span> tin</b><span>RSS từ CafeF, Vietstock, VnEconomy được lọc chủ đề, chống trùng và xếp hạng mỗi phiên.</span></div>
+    <div class="card stat spot reveal" style="--d:.08s"><b>60 phiên</b><span>Nến VN-Index với SMA20, RSI14 Wilder, vùng hỗ trợ và kháng cự 20 phiên.</span></div>
+    <div class="card stat spot reveal" style="--d:.16s"><b>160–220 từ</b><span>Kịch bản MC tài chính, mở đầu bằng hook xoay vòng để không rập khuôn.</span></div>
+    <div class="card stat spot reveal" style="--d:.24s"><b>&lt; 48 MB</b><span>MP4 1080×1920, 30fps, −14 LUFS, phụ đề burn-in, gửi được qua Telegram.</span></div>
+  </div>
+</section>
+
+<!-- ================= PIPELINE ================= -->
+<section class="sec" id="quy-trinh">
+  <div class="container pipe">
+    <aside class="pipe-side reveal">
+      <span class="eyebrow"><b>01</b>Quy trình 5 bước</span>
+      <h2>Từ tin tức thô tới <span class="soft">video sẵn sàng đăng</span>.</h2>
+      <p>Mỗi bước giao tiếp qua hợp đồng dữ liệu rõ ràng, ghi artifact có checksum và có thể chạy lại đúng từ bước lỗi.</p>
+      <div class="pipe-prog" id="pipeProg">
+        <a href="#s1" class="on"><i>1</i>Thu thập</a><a href="#s2"><i>2</i>AI biên tập</a><a href="#s3"><i>3</i>Giọng &amp; Avatar</a><a href="#s4"><i>4</i>Dựng video</a><a href="#s5"><i>5</i>Duyệt &amp; Đăng</a>
+      </div>
+    </aside>
+    <div class="steps" id="steps">
+      <div class="rail" id="rail"></div>
+      <article class="card step spot reveal on" id="s1"><span class="node"></span>
+        <div class="step-top"><span class="step-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1.5"/></svg></span><div><h3>Thu thập</h3><span class="k">rss.py · ranking.py · indicators.py</span></div></div>
+        <p>Tải RSS song song, lọc theo từ khóa chứng khoán, chống trùng bằng SHA-256 + Jaccard ≥ 0,6 và chấm điểm <span class="mono">0,5·mới + 0,3·từ khóa + 0,2·nguồn</span>.</p>
+        <div class="viz" id="vizNews"></div>
+      </article>
+      <article class="card step spot reveal" id="s2"><span class="node"></span>
+        <div class="step-top"><span class="step-ic" style="background:rgba(139,92,246,.12);border-color:rgba(139,92,246,.3);color:#c4b5fd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg></span><div><h3>AI biên tập</h3><span class="k">gemini.py · factcheck.py</span></div></div>
+        <p>Gemini viết kịch bản theo schema; code hậu kiểm số từ, câu miễn trừ, cụm từ cấm và <b>đối chiếu mọi con số</b> với dữ liệu đầu vào. Sai → viết lại 1 lần → mẫu dự phòng.</p>
+        <div class="viz viz-code" id="vizScript"></div>
+      </article>
+      <article class="card step spot reveal" id="s3"><span class="node"></span>
+        <div class="step-top"><span class="step-ic" style="background:rgba(56,189,248,.1);border-color:rgba(56,189,248,.3);color:#7dd3fc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/></svg></span><div><h3>Giọng &amp; Avatar</h3><span class="k">edge.py · subtitles.py · demo_motion.py</span></div></div>
+        <p>Giọng Neural tiếng Việt kèm mốc thời gian từng từ → phụ đề 2 dòng ≤ 800px. Avatar từ ảnh của bạn (có bản ghi đồng ý) — chuyển động nhẹ miễn phí hoặc khớp môi Hybrid.</p>
+        <div class="viz"><div class="wave" id="wave"></div><div class="small muted" style="margin-top:8px">vi-VN-HoaiMyNeural · +5% · WordBoundary</div></div>
+      </article>
+      <article class="card step spot reveal" id="s4"><span class="node"></span>
+        <div class="step-top"><span class="step-ic" style="background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.3);color:#fcd34d"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M7 3v18M17 3v18M3 8h4M3 16h4M17 8h4M17 16h4"/></svg></span><div><h3>Dựng video 9:16</h3><span class="k">composer.py · ffmpeg filtergraph</span></div></div>
+        <p>FFmpeg ghép header, ticker chạy chữ, B-roll biểu đồ ↔ thẻ tin có xfade, avatar, sóng âm, phụ đề, nhãn AI và dải miễn trừ — rồi tự kiểm bằng ffprobe.</p>
+        <div class="viz layers"><div style="--i:0;color:#c4b5fd">▣ ai_label.png · nhãn AI</div><div style="--i:1;color:#fcd34d">▣ subs.ass · phụ đề</div><div style="--i:2;color:#6ee7b7">▣ avatar.mp4 · MC ảo</div><div style="--i:3;color:#7dd3fc">▣ broll.mp4 · biểu đồ + tin</div></div>
+      </article>
+      <article class="card step spot reveal" id="s5"><span class="node"></span>
+        <div class="step-top"><span class="step-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></span><div><h3>Duyệt &amp; Đăng</h3><span class="k">telegram.py · facebook.py · youtube.py · tiktok.py</span></div></div>
+        <p>Mặc định chờ bạn duyệt. Sửa tiêu đề, caption (app tự kiểm câu miễn trừ), chọn quyền riêng tư từng nền tảng, bấm đăng. TikTok luôn cần duyệt.</p>
+        <div class="viz plat-tog">
+          <div>Telegram <span class="badge b-ok"><span class="dot"></span>Đã đăng</span></div>
+          <div>YouTube <span class="badge b-ai">synthetic ✓</span></div>
+          <div>Facebook <span class="badge b-dry">30/24h</span></div>
+          <div>TikTok <span class="badge b-wait">is_aigc</span></div>
+        </div>
+      </article>
     </div>
   </div>
 </section>
 
-<!-- TAB 3 -->
-<section class="tab" id="tab-lib">
-  <div class="row" style="justify-content:space-between"><h2>Kho nội dung &amp; duyệt bài</h2>
-    <select id="libFilter" style="width:220px"><option value="">Tất cả trạng thái</option><option>WAITING_APPROVAL</option><option>COMPLETED</option><option>FAILED</option><option>CANCELLED</option></select></div>
-  <div class="joblist" id="jobList"></div>
-  <div id="jobDetail"></div>
-</section>
-
-<!-- TAB 4 -->
-<section class="tab" id="tab-sched">
-  <h2>Lịch tự động</h2>
-  <div class="note">Lịch chỉ chạy khi ứng dụng đang mở (có thể thu nhỏ xuống khay hệ thống). Ở bản demo này: chỉ chạy khi tab trình duyệt đang mở.</div>
-  <div class="grid2">
-    <div class="card">
-      <h3>Thêm lịch</h3>
-      <label class="f">Tên</label><input type="text" id="sName" value="Bản tin trước phiên">
-      <label class="f">Loại phiên</label><select id="sType"><option value="PRE_MARKET">Trước phiên</option><option value="POST_MARKET">Sau phiên</option></select>
-      <label class="f">Giờ</label><input type="time" id="sTime" value="07:30">
-      <label class="f">Ngày</label><select id="sDays"><option value="mon-fri">Thứ 2 – Thứ 6</option><option value="all">Cả tuần</option></select>
-      <label class="f">Nền tảng</label>
-      <div class="row small"><label><input type="checkbox" class="sPf" value="telegram" checked> Telegram</label><label><input type="checkbox" class="sPf" value="facebook"> Facebook Reels</label><label><input type="checkbox" class="sPf" value="youtube"> YouTube Shorts</label><label><input type="checkbox" class="sPf" value="tiktok"> TikTok</label></div>
-      <div class="chk"><label class="switch"><input type="checkbox" id="sAppr" checked><span></span></label> Chờ tôi duyệt trước khi đăng</div>
-      <div class="row"><button class="btn pri" id="sAdd">Thêm lịch</button><button class="btn" id="sQuick">Tạo lịch thử sau 1 phút</button></div>
+<!-- ================= BENTO ================= -->
+<section class="sec" id="tinh-nang">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="eyebrow"><b>02</b>Tính năng</span>
+      <h2>Thiết kế cho <span class="soft">người làm nội dung tài chính</span></h2>
+      <p>Không phải một trình tạo video chung chung — mọi chi tiết đều xoay quanh độ chính xác, pháp lý và việc vận hành hằng ngày.</p>
     </div>
-    <div class="card">
-      <h3>Danh sách lịch</h3>
-      <table><thead><tr><th>Bật</th><th>Tên</th><th>Giờ</th><th>Ngày</th><th>Lần chạy gần nhất</th><th></th></tr></thead><tbody id="sTable"></tbody></table>
+    <div class="bento">
+      <div class="card tile t-a spot reveal">
+        <span class="badge b-live tag"><span class="dot"></span>Biểu đồ thật, dựng tự động</span>
+        <h3>Nến 60 phiên + chỉ báo kỹ thuật</h3>
+        <p>SMA20, RSI14 Wilder khớp TradingView, hỗ trợ/kháng cự 20 phiên, định dạng số Việt Nam. Dữ liệu minh họa luôn có watermark và bị chặn đăng.</p>
+        <div class="vis"><div class="chart-wrap"><canvas id="bentoChart" width="1080" height="660" style="width:100%"></canvas></div></div>
+      </div>
+      <div class="card tile t-b spot reveal" style="--d:.08s">
+        <span class="badge b-fail tag">Safe zone</span>
+        <h3>Bố cục tránh UI nền tảng</h3>
+        <p>Chữ quan trọng không bao giờ nằm dưới nút like, caption hay thanh tab của TikTok/Reels.</p>
+        <div class="vis"><div class="mini-phone"><i style="top:0;height:6.25%"></i><i style="top:75%;bottom:0"></i><i style="left:88.9%;top:43.75%;height:31.25%;right:0"></i>
+          <div class="z" style="top:11.5%;height:3%;background:rgba(229,231,235,.25)">TICKER</div><div class="z" style="top:15%;height:33%;background:rgba(56,189,248,.18);color:#7dd3fc">B-ROLL</div>
+          <div class="z" style="top:64.5%;height:8%;background:rgba(250,204,21,.22);color:#fde68a">PHỤ ĐỀ</div><div class="z" style="top:15.6%;height:2.6%;right:50%;background:rgba(139,92,246,.4);color:#fff">AI</div></div></div>
+      </div>
+      <div class="card tile t-c spot reveal">
+        <span class="badge b-wait tag">Human-in-the-loop</span>
+        <h3>Luôn có người duyệt</h3>
+        <p>Video chờ duyệt, có bản nháp gửi riêng qua Telegram cho bạn xem trên điện thoại.</p>
+        <div class="vis approve-ui"><div class="ln"><span class="badge b-wait"><span class="dot"></span>Chờ duyệt</span> Bản tin trước phiên 26/11</div><div class="ln" style="justify-content:space-between">Caption đạt kiểm tra pháp lý <span class="up">✓</span></div></div>
+      </div>
+      <div class="card tile t-d spot reveal" style="--d:.08s">
+        <span class="badge b-run tag">Lịch tự động</span>
+        <h3>Chạy đúng giờ, tự chạy bù</h3>
+        <p>07:30 &amp; 15:30, thứ 2–6. Lỡ lịch trong 120 phút sẽ tự chạy bù; không có phiên thì tự bỏ qua.</p>
+        <div class="vis clock"><div class="ring" id="ring"><span id="ringTxt">--</span></div><div class="small"><b id="nextLbl">07:30</b><div class="muted" id="nextIn">đang tính…</div></div></div>
+      </div>
+      <div class="card tile t-e spot reveal" style="--d:.16s">
+        <span class="badge b-ai tag">Bảo mật</span>
+        <h3>Khóa API trong keyring</h3>
+        <p>Không bao giờ lưu khóa trong DB. Token phiên + kiểm tra Origin chặn trang web lạ gọi vào app.</p>
+        <div class="vis key-vis"><div><span>gemini_api_key</span><span class="muted">AIza••••••1234</span></div><div><span>telegram_bot_token</span><span class="muted">[REDACTED]</span></div></div>
+      </div>
+      <div class="card tile t-f spot reveal">
+        <span class="badge b-ok tag">Hybrid avatar</span>
+        <h3>Khớp môi mà vẫn tiết kiệm ~80%</h3>
+        <p>Chỉ 7 giây đầu và 8 giây cuối dùng avatar khớp môi trả phí; đoạn giữa dùng chuyển động miễn phí rồi nối liền mạch.</p>
+        <div class="vis cost-bars">
+          <div class="cb"><span>OmniHuman</span><div class="bar"><i style="--w:100%"></i></div><b>$10,50</b></div>
+          <div class="cb"><span>Kling v2 Pro</span><div class="bar"><i style="--w:82%"></i></div><b>$8,63</b></div>
+          <div class="cb"><span>Kling v2 Std</span><div class="bar"><i style="--w:40%"></i></div><b>$4,22</b></div>
+          <div class="cb"><span>Hybrid</span><div class="bar"><i style="--w:8%"></i></div><b>$0,84</b></div>
+          <div class="cb"><span>DemoMotion</span><div class="bar"><i style="--w:1%"></i></div><b>$0</b></div>
+        </div>
+      </div>
+      <div class="card tile t-g spot reveal" style="--d:.08s">
+        <span class="badge b-cache tag">Bền bỉ</span>
+        <h3>Mỗi lỗi đều có đường lui</h3>
+        <p>Nguồn dữ liệu lỗi → dùng bản đã lưu; Gemini lỗi → mẫu dự phòng; TTS lỗi → thử lại 5 lần; render lỗi → chạy lại từ đúng bước hỏng nhờ <span class="mono">manifest.json</span>.</p>
+        <div class="vis viz viz-code">PublicVci <span class="bad">timeout</span> → Cache <span class="ok">CACHED 25/11</span><br>Gemini <span class="bad">429</span> → fallback_model <span class="ok">OK</span><br>retry --from-step 4 · bỏ qua B1–B3 <span class="ok">checksum khớp</span></div>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- TAB 5 -->
-<section class="tab" id="tab-set">
-  <h2>Cài đặt</h2>
-  <div class="grid2">
-    <div class="card">
-      <h3>Chế độ vận hành</h3>
-      <div class="row"><span>DEMO</span><label class="switch"><input type="checkbox" id="modeSw"><span></span></label><span>PRODUCTION</span></div>
-      <div id="prodCheck"></div>
-      <h3 style="margin-top:18px">Kiểm tra môi trường (preflight)</h3>
-      <table id="pfTable"></table>
-      <h3 style="margin-top:18px">Bảo trì</h3>
-      <div class="row"><button class="btn" id="exportBtn">Xuất dữ liệu demo (JSON)</button><button class="btn danger" id="wipeBtn">Xóa toàn bộ dữ liệu demo</button></div>
+<!-- ================= FACTCHECK PLAYGROUND ================= -->
+<section class="sec" id="kiem-chung">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="eyebrow"><b>03</b>Thử trực tiếp</span>
+      <h2>AI viết sai số? <span class="soft">Code chặn lại.</span></h2>
+      <p>Sửa đoạn kịch bản bên trái — mọi con số được đối chiếu với dữ liệu thị trường và tin đầu vào, ngay trên trình duyệt của bạn.</p>
     </div>
-    <div class="card">
-      <h3>Khóa dịch vụ</h3>
-      <div class="small muted">Bản thật lưu trong Windows Credential Manager / macOS Keychain (R-SEC-3). Bản demo chỉ giữ trong bộ nhớ tab và <b>không gửi đi đâu</b>.</div>
-      <div id="keys"></div>
+    <div class="play reveal">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><span class="label">Kịch bản (có thể sửa)</span>
+          <div style="display:flex;gap:6px"><button class="btn btn-sm" id="pgFake">Chèn số bịa</button><button class="btn btn-sm btn-ghost" id="pgReset">Khôi phục</button></div></div>
+        <textarea class="textarea" id="pgIn" aria-label="Đoạn kịch bản để kiểm chứng số liệu" style="margin-top:12px;min-height:250px"></textarea>
+        <div class="facts" id="pgFacts"></div>
+      </div>
+      <div class="card">
+        <span class="label">Kết quả factcheck</span>
+        <div class="out" id="pgOut" aria-live="polite" style="margin-top:12px"></div>
+        <div class="verdict" id="pgVerdict"></div>
+      </div>
     </div>
+  </div>
+</section>
+
+<!-- ================= TUÂN THỦ ================= -->
+<section class="sec" id="tuan-thu">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="eyebrow"><b>04</b>Tuân thủ từ thiết kế</span>
+      <h2>Minh bạch AI, <span class="soft">không khuyến nghị đầu tư</span></h2>
+      <p>Các ràng buộc pháp lý là luật cứng trong code — có test tự động, không chỉ nằm trong prompt.</p>
+    </div>
+    <div class="comp">
+      <div class="card law spot reveal">
+        <span class="badge b-ai">Luật Trí tuệ nhân tạo số 134/2025/QH15 · hiệu lực 01/03/2026</span>
+        <h3>Nội dung AI mô phỏng người thật phải có nhãn nhìn thấy được và đánh dấu máy đọc được.</h3>
+        <p class="muted">StockAI Studio gắn nhãn “Nội dung có sử dụng AI” suốt video, nhãn mở rộng 3 giây đầu, metadata trong file MP4 và bật mọi cờ khai báo của nền tảng (YouTube <span class="mono">containsSyntheticMedia</span>, TikTok <span class="mono">is_aigc</span>).</p>
+        <div class="facts"><span class="badge b-ok">✓ Nhãn hiển thị</span><span class="badge b-ok">✓ Metadata MP4</span><span class="badge b-ok">✓ Cờ nền tảng</span><span class="badge b-ok">✓ Bản ghi đồng ý chân dung</span></div>
+      </div>
+      <div class="rules">
+        <div class="card rule spot reveal"><code>R-LEGAL-1</code><h4>Nhãn AI suốt video</h4><p>Và câu khai báo trong mọi bài đăng — app từ chối lưu caption thiếu dòng này.</p></div>
+        <div class="card rule spot reveal" style="--d:.06s"><code>R-LEGAL-3</code><h4>Đồng ý dùng chân dung</h4><p>Không có bản ghi đồng ý thì ảnh không bao giờ được gửi tới provider.</p></div>
+        <div class="card rule spot reveal" style="--d:.12s"><code>R-LEGAL-4</code><h4>Không khuyến nghị mua/bán</h4><p>Lọc cụm “mua ngay”, “chắc chắn”…; luôn kết thúc bằng câu miễn trừ.</p></div>
+        <div class="card rule spot reveal" style="--d:.18s"><code>R-PUB-1</code><h4>Chặn dữ liệu minh họa</h4><p>Số liệu giả lập có watermark lớn và chỉ được dry-run, không bao giờ đăng thật.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CHI PHÍ ================= -->
+<section class="sec" id="chi-phi">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="eyebrow"><b>05</b>Chi phí minh bạch</span>
+      <h2>Bắt đầu với <span class="soft">0 đồng</span>, mở rộng khi cần</h2>
+      <p>Ứng dụng chạy trên máy của bạn. Bạn chỉ trả cho dịch vụ bên ngoài mình chọn bật.</p>
+    </div>
+    <div class="pricing">
+      <div class="card plan spot reveal"><span class="name">Demo</span><div class="price">0 đ<small> / tháng</small></div><p class="muted small">Dùng thử đầy đủ quy trình trên laptop.</p>
+        <ul><li>RSS thật + dữ liệu công khai</li><li>Gemini free tier hoặc kịch bản mẫu</li><li>Giọng edge-tts tiếng Việt</li><li>Avatar chuyển động nhẹ</li><li>Đăng Telegram thật + dry-run</li></ul>
+        <a class="btn" href="app.html">Mở Studio demo</a></div>
+      <div class="card plan hot spot reveal" style="--d:.08s"><span class="name" style="color:var(--brand-2)">Hybrid · khuyên dùng</span><div class="price">~$37<small> / tháng</small></div><p class="muted small">44 video · khớp môi 15 giây mỗi video.</p>
+        <ul><li>Mọi thứ của Demo</li><li>Khớp môi đầu &amp; cuối (Kling Standard)</li><li>Giới hạn chi phí mỗi video</li><li>Facebook Reels, YouTube Shorts, TikTok</li><li>Nguồn dữ liệu chính thức (SSI)</li></ul>
+        <a class="btn btn-primary" href="app.html">Thử cấu hình Hybrid</a></div>
+      <div class="card plan spot reveal" style="--d:.16s"><span class="name">Full lip-sync</span><div class="price">$185+<small> / tháng</small></div><p class="muted small">Khớp môi toàn bộ video 75 giây.</p>
+        <ul><li>Kling v2 Standard / Pro</li><li>OmniHuman · HeyGen Photo Avatar</li><li>ElevenLabs (tùy chọn)</li><li>Chi phí ghi vào từng job</li></ul>
+        <a class="btn" href="#calc">Ước tính chi phí</a></div>
+    </div>
+    <div class="card calc reveal" id="calc">
+      <div>
+        <span class="label">Bộ ước tính</span>
+        <div class="field"><label>Số video mỗi ngày giao dịch: <b id="cVid">2</b></label><input type="range" id="cRange" aria-label="Số video mỗi ngày" min="1" max="6" value="2"></div>
+        <div class="field"><label>Avatar</label><div class="seg" id="cSeg"></div></div>
+        <p class="tiny faint" style="margin:14px 0 0">Giả định video 75 giây, 22 ngày giao dịch/tháng. Giá tham khảo tháng 11/2026, cần kiểm chứng lại trước khi bật.</p>
+      </div>
+      <div class="out"><span class="muted small">Ước tính mỗi tháng</span><b id="cOut">$0</b><span class="small muted" id="cPer"></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FAQ ================= -->
+<section class="sec" id="faq">
+  <div class="container">
+    <div class="sec-head reveal"><span class="eyebrow"><b>06</b>Hỏi đáp</span><h2>Câu hỏi thường gặp</h2></div>
+    <div class="faq reveal">
+      <details><summary>Bản web này có gọi API thật hay đăng bài thật không?</summary><div class="ans">Không. Web demo chạy hoàn toàn trong trình duyệt của bạn: dữ liệu thị trường là dữ liệu minh họa (có watermark), mọi bước đăng đều là dry-run. Ứng dụng desktop mới gọi RSS, Gemini, edge-tts, FFmpeg và các nền tảng thật.</div></details>
+      <details><summary>Ứng dụng có tư vấn mua bán cổ phiếu không?</summary><div class="ans">Không. Kịch bản bị cấm khuyến nghị mua/bán/nắm giữ mã cụ thể, cấm các cụm như “mua ngay”, “chắc chắn” và luôn kết thúc bằng câu miễn trừ trách nhiệm. Nếu thương mại hóa, bạn nên hỏi ý kiến luật sư.</div></details>
+      <details><summary>Tôi có thể dùng ảnh của người khác làm MC không?</summary><div class="ans">Chỉ khi người đó đã đồng ý. App bắt buộc tick xác nhận đồng ý và lưu bản ghi trước khi ảnh được dùng ở bất kỳ provider nào (R-LEGAL-3).</div></details>
+      <details><summary>Nếu AI viết sai con số thì sao?</summary><div class="ans">Code đối chiếu mọi con số trong kịch bản, bài đăng và ticker với dữ liệu thị trường và tin đầu vào. Có số lạ → gọi lại AI kèm danh sách lỗi; vẫn sai → dùng kịch bản mẫu luôn đúng. Bạn có thể thử ở mục “Kiểm chứng số liệu” phía trên.</div></details>
+      <details><summary>Máy tắt hoặc ngủ thì lịch có chạy không?</summary><div class="ans">Lịch chỉ chạy khi app đang mở (có thể thu nhỏ xuống khay hệ thống, tự khởi động cùng Windows). App chặn máy ngủ khi đang dựng và tự chạy bù lịch bị lỡ trong vòng 120 phút.</div></details>
+      <details><summary>Cần cài gì để chạy bản thật?</summary><div class="ans">Windows 10/11 hoặc macOS 13+, FFmpeg và uv. Trên Windows chỉ cần bấm đúp <span class="mono">CaiDat.bat</span> — script tự cài mọi thứ và tạo biểu tượng trên Desktop.</div></details>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CTA ================= -->
+<section class="container reveal">
+  <div class="card cta">
+    <span class="eyebrow"><b>07</b>Sẵn sàng?</span>
+    <h2 style="margin-top:14px">Dựng bản tin đầu tiên<br><span class="soft">trong chưa đầy một phút.</span></h2>
+    <p>Mở Studio demo, bấm “Chạy quy trình” và xem 5 bước chạy trước mắt bạn — không cần tài khoản, không cần cài đặt.</p>
+    <div class="hero-ctas" style="justify-content:center"><a class="btn btn-primary btn-lg" href="app.html" data-magnet>Mở Studio demo</a><a class="btn btn-lg" href="https://github.com/luan0217091310-gif/StockAI-Studio" target="_blank" rel="noopener">Xem mã nguồn</a></div>
   </div>
 </section>
 </main>
-</div>
-<div class="toast" id="toast"></div>
 
-<script>
-"use strict";
-/* =========================================================
-   StockAI Studio — bản demo trình duyệt (theo BLUEPRINT v3.0)
-   Mọi dịch vụ ngoài đều mô phỏng; logic nghiệp vụ là thật.
-   ========================================================= */
-const $ = s => document.querySelector(s);
-const $$ = s => [...document.querySelectorAll(s)];
-const sleep = ms => new Promise(r => setTimeout(r, ms));
-const NFC = s => (s || "").normalize("NFC");
-const store = {
-  get(k, d){ try{ const v = localStorage.getItem("stockai." + k); return v ? JSON.parse(v) : d; }catch{ return d; } },
-  set(k, v){ try{ localStorage.setItem("stockai." + k, JSON.stringify(v)); return true; }catch{ return false; } }
-};
-
-/* ---------- Định dạng số kiểu Việt Nam ---------- */
-const nf = (d=2) => new Intl.NumberFormat("vi-VN", {minimumFractionDigits:d, maximumFractionDigits:d});
-const fmt = (x, d=2) => nf(d).format(x);
-const fmtSigned = (x, d=2) => (x >= 0 ? "+" : "-") + fmt(Math.abs(x), d);
-const dmy = d => `${String(d.getDate()).padStart(2,"0")}/${String(d.getMonth()+1).padStart(2,"0")}/${d.getFullYear()}`;
-const ymd = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-const uuid = () => (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2));
-const SESSION_LABEL = {PRE_MARKET:"TRƯỚC PHIÊN", POST_MARKET:"TỔNG KẾT PHIÊN", ADHOC:"ĐIỂM TIN"};
-
-/* ---------- Layout 9:16 (Mục 10 — nguồn sự thật duy nhất) ---------- */
-const L = {
-  W:1080, H:1920,
-  header:{x:60,y:120,w:960,h:100},
-  ticker:{y:220,h:60,speed:140},
-  broll:{y:280,h:660},
-  aiLabel:{x:76,y:296,h:44},
-  divider:{y:940,h:4},
-  avatar:{y:944,h:976},
-  subs:{left:140,right:940,bottom:1400,size:60,maxW:800},
-  wave:{x:120,y:1410,w:840,h:60},
-  disclaimer:{x:60,y:860,w:900,h:70},
-  unsafe:{bottomY:1440, rightX:960, rightFromY:840, topY:120}
-};
-
-/* ---------- Dữ liệu thị trường: SyntheticProvider (random walk có seed) ---------- */
-function mulberry32(a){ return function(){ a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
-function tradingDaysBack(n, end){
-  const out = []; const d = new Date(end); d.setHours(0,0,0,0);
-  if (d.getDay() === 0) d.setDate(d.getDate()-2); else if (d.getDay() === 6) d.setDate(d.getDate()-1);
-  while (out.length < n){ if (d.getDay() !== 0 && d.getDay() !== 6) out.unshift(new Date(d)); d.setDate(d.getDate()-1); }
-  return out;
-}
-function syntheticBars(seedDate, n=60){
-  const seed = Number(ymd(seedDate).replaceAll("-",""));
-  const rnd = mulberry32(seed);
-  const days = tradingDaysBack(n, seedDate);
-  let c = 1640 + rnd()*60; const bars = [];
-  for (const d of days){
-    const o = c * (1 + (rnd()-0.5)*0.006);
-    c = o * (1 + (rnd()-0.48)*0.018);
-    const h = Math.max(o,c) * (1 + rnd()*0.006), l = Math.min(o,c) * (1 - rnd()*0.006);
-    bars.push({date:ymd(d), open:+o.toFixed(2), high:+h.toFixed(2), low:+l.toFixed(2), close:+c.toFixed(2), volume:Math.round(550e6 + rnd()*450e6)});
-  }
-  return bars;
-}
-/* ---------- Chỉ báo (Mục 9.2): SMA20, RSI14 Wilder, hỗ trợ/kháng cự ---------- */
-function sma(arr, n){ return arr.map((_,i) => i < n-1 ? null : arr.slice(i-n+1,i+1).reduce((a,b)=>a+b,0)/n); }
-function rsiWilder(close, n=14){
-  const a = 1/n; let g = 0, l = 0;
-  for (let i=1;i<close.length;i++){ const d = close[i]-close[i-1]; const gi = Math.max(d,0), li = Math.max(-d,0);
-    if (i === 1){ g = gi; l = li; } else { g = a*gi + (1-a)*g; l = a*li + (1-a)*l; } }
-  return l === 0 ? 100 : 100 - 100/(1 + g/l);
-}
-function buildSnapshot(bars, source, quality){
-  const close = bars.map(b=>b.close), last = bars.at(-1), prev = bars.at(-2);
-  const t20 = bars.slice(-20);
-  const change = last.close - prev.close;
-  return { symbol:"VNINDEX", session_date:last.date, bars, close:last.close, change:+change.toFixed(2),
-    change_pct:+(change/prev.close*100).toFixed(2), volume:last.volume, value_bn_vnd:null, foreign_net_bn_vnd:null,
-    sma20:+sma(close,20).at(-1).toFixed(2), rsi14:+rsiWilder(close).toFixed(2),
-    support20:+Math.min(...t20.map(b=>b.low)).toFixed(2), resistance20:+Math.max(...t20.map(b=>b.high)).toFixed(2),
-    source, data_quality:quality };
-}
-
-/* ---------- Tin tức: fixture RSS mẫu (tự tạo, đúng cấu trúc 3 nguồn) ---------- */
-const NEWS_FIXTURE = [
-  {t:"Khối ngoại bán ròng phiên thứ ba liên tiếp trên HOSE", s:"CafeF", h:3, sum:"Dòng vốn ngoại tiếp tục rút ròng tập trung ở nhóm ngân hàng và bất động sản."},
-  {t:"NHNN giữ ổn định lãi suất điều hành, tỷ giá hạ nhiệt", s:"VnEconomy", h:5, sum:"Ngân hàng Nhà nước duy trì mặt bằng lãi suất, tỷ giá trung tâm giảm nhẹ trong tuần."},
-  {t:"Thanh khoản HOSE cải thiện, dòng tiền quay lại nhóm chứng khoán", s:"Vietstock", h:7, sum:"Giá trị giao dịch tăng so với phiên trước, nhóm cổ phiếu chứng khoán thu hút dòng tiền."},
-  {t:"Khối ngoại bán ròng phiên thứ 3 liên tiếp trên sàn HOSE", s:"Vietstock", h:4, sum:"Tin trùng ý với CafeF — dùng để kiểm tra chống trùng gần đúng."},
-  {t:"Fed phát tín hiệu thận trọng về lộ trình giảm lãi suất", s:"VnEconomy", h:9, sum:"Biên bản cuộc họp cho thấy các thành viên muốn thêm dữ liệu lạm phát trước khi quyết định."},
-  {t:"Nhóm cổ phiếu thép hồi phục sau chuỗi điều chỉnh", s:"CafeF", h:11, sum:"Nhiều mã thép tăng giá trở lại khi giá nguyên liệu đầu vào ổn định."},
-  {t:"Giá vàng miếng lập đỉnh mới trong tuần", s:"VnEconomy", h:6, sum:"Tin ngoài chủ đề chứng khoán — sẽ bị bộ lọc từ khóa loại bỏ."},
-  {t:"Trái phiếu doanh nghiệp: áp lực đáo hạn giảm dần", s:"CafeF", h:20, sum:"Khối lượng trái phiếu đáo hạn trong quý tới thấp hơn cùng kỳ."},
-  {t:"UPCoM: thêm doanh nghiệp đăng ký giao dịch trong tháng", s:"Vietstock", h:26, sum:"Số doanh nghiệp mới lên sàn UPCoM tăng nhẹ."},
-  {t:"VN-Index giằng co quanh vùng kháng cự ngắn hạn", s:"CafeF", h:2, sum:"Chỉ số dao động hẹp, lực cung xuất hiện khi tiếp cận vùng đỉnh cũ."}
-];
-const TOPIC_KW = {"vn-index":3,"cổ phiếu":2,"chứng khoán":2,"hose":2,"hnx":2,"upcom":1.5,"khối ngoại":3,"thanh khoản":2.5,"lãi suất":2,"tỷ giá":1.5,"nhnn":1.5,"fed":1.5,"trái phiếu":1};
-const normTitle = s => NFC(s).toLowerCase().replace(/[^\p{L}\p{N}\s]/gu," ").replace(/\s+/g," ").trim();
-async function sha256(s){ const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join(""); }
-function jaccard(a, b){ const A = new Set(normTitle(a).split(" ")), B = new Set(normTitle(b).split(" ")); let i = 0; A.forEach(w => B.has(w) && i++); return i / (A.size + B.size - i); }
-async function collectNews(now, log){
-  // Cửa sổ thời gian: min(now-48h, 00:00 ngày giao dịch liền trước), tối đa 96h
-  const prevTd = new Date(now); prevTd.setHours(0,0,0,0);
-  do { prevTd.setDate(prevTd.getDate()-1); } while (prevTd.getDay()===0 || prevTd.getDay()===6);
-  let since = new Date(Math.min(now - 48*3600e3, prevTd));
-  if (now - since > 96*3600e3) since = new Date(now - 96*3600e3);
-  await log("INFO", `Cửa sổ tin: từ ${since.toLocaleString("vi-VN")} (${Math.round((now-since)/3600e3)} giờ)`);
-  const items = [], seen = new Set();
-  for (const f of NEWS_FIXTURE){
-    const title = NFC(f.t), low = title.toLowerCase() + " " + f.sum.toLowerCase();
-    const kw = Object.entries(TOPIC_KW).filter(([k]) => low.includes(k));
-    if (!kw.length){ await log("DEBUG", `Loại tin ngoài chủ đề: "${title}"`); continue; }
-    const hash = await sha256(normTitle(title));
-    if (seen.has(hash)) continue; seen.add(hash);
-    const dup = items.find(x => jaccard(x.title, title) >= 0.6);
-    if (dup){ dup.sources++; await log("DEBUG", `Chống trùng (Jaccard ≥ 0,6): gộp "${title}" vào tin của ${dup.source}`); continue; }
-    items.push({ title, source:f.s, url:`https://example.invalid/${f.s.toLowerCase()}/${hash.slice(0,10)}`, published_at:new Date(now - f.h*3600e3).toISOString(),
-      summary:NFC(f.sum).slice(0,300), content_hash:hash, kwWeight:kw.reduce((a,[,w])=>a+w,0), hoursAgo:f.h, sources:1 });
-  }
-  const maxKw = Math.max(...items.map(x=>x.kwWeight));
-  items.forEach(x => x.score = +(0.5*Math.max(0,1-x.hoursAgo/96) + 0.3*x.kwWeight/maxKw + 0.2*Math.min(x.sources,3)/3).toFixed(3));
-  items.sort((a,b) => b.score - a.score);
-  return items.slice(0,20).map((x,i) => ({...x, id:i}));
-}
-
-/* ---------- AI biên tập: TemplateFallbackProvider + hậu kiểm ---------- */
-const DISCLAIMER = "Nội dung chỉ mang tính tham khảo, không phải khuyến nghị đầu tư.";
-const AI_DECL = "Video có sử dụng AI (MC ảo, giọng đọc tổng hợp).";
-const BANNED = ["chắc chắn","mua ngay","bắt đáy ngay","x2 tài khoản","cơ hội cuối cùng"];
-const HOOKS = ["câu hỏi gợi tò mò","con số nổi bật nhất","so sánh với phiên trước","tin nóng nhất","cảnh báo nhẹ nhàng"];
-const wc = s => s.trim().split(/\s+/).filter(Boolean).length;
-function templateScript(ctx){
-  const m = ctx.market, up = m.change >= 0, dir = up ? "tăng" : "giảm";
-  const sd = new Date(m.session_date + "T00:00:00");
-  const hookIdx = (new Date(ctx.run_date).getDate()) % HOOKS.length;
-  const hookLines = [
-    `Sau phiên ${dir} ${fmt(Math.abs(m.change))} điểm, liệu VN-Index sẽ đi tiếp theo hướng nào?`,
-    `${fmt(m.close)} điểm, đó là mức đóng cửa mới nhất của VN-Index.`,
-    `So với phiên trước, VN-Index đã ${dir} ${fmt(Math.abs(m.change_pct))}%.`,
-    `Tin đáng chú ý nhất hôm nay: ${ctx.news[0].title.toLowerCase()}.`,
-    `Thị trường đang tiến gần vùng kháng cự, hãy cùng xem các tín hiệu cần lưu ý.`
-  ];
-  const n = ctx.news.slice(0,3);
-  const rsiState = m.rsi14 > 70 ? "quá mua" : m.rsi14 < 30 ? "quá bán" : "trung tính";
-  const parts = [
-    hookLines[hookIdx],
-    `Xin chào quý vị, đây là bản tin chứng khoán ${SESSION_LABEL[ctx.session_type].toLowerCase()} ngày ${dmy(new Date(ctx.run_date))}.`,
-    `Kết thúc phiên ngày ${String(sd.getDate()).padStart(2,"0")}/${String(sd.getMonth()+1).padStart(2,"0")}, VN-Index đóng cửa tại ${fmt(m.close)} điểm, ${dir} ${fmt(Math.abs(m.change))} điểm, tương ứng ${fmt(Math.abs(m.change_pct))}%.`,
-    `Về kỹ thuật, chỉ số đang nằm ${m.close >= m.sma20 ? "trên" : "dưới"} đường trung bình 20 phiên ở mức ${fmt(m.sma20)} điểm.`,
-    `Chỉ báo RSI 14 phiên ở mức ${fmt(m.rsi14)}, cho thấy trạng thái ${rsiState}.`,
-    `Vùng hỗ trợ gần nhất quanh ${fmt(m.support20)} điểm, còn kháng cự nằm quanh ${fmt(m.resistance20)} điểm.`,
-    `Tiếp theo là các tin đáng chú ý.`,
-    `Thứ nhất, ${n[0].title.toLowerCase()}.`, `Thứ hai, ${n[1].title.toLowerCase()}.`, `Thứ ba, ${n[2].title.toLowerCase()}.`,
-    `Với kịch bản cơ sở, chỉ số có thể dao động trong vùng từ ${fmt(m.support20)} đến ${fmt(m.resistance20)} điểm khi thị trường chờ thêm thông tin mới.`,
-    `Với kịch bản thận trọng, nếu đánh mất vùng hỗ trợ ${fmt(m.support20)} điểm, áp lực điều chỉnh có thể gia tăng, vì vậy việc quản trị rủi ro là rất quan trọng.`
-  ];
-  const fillers = [n[0].summary, n[1].summary, n[2].summary, "Diễn biến dòng tiền trong những phiên tới sẽ là yếu tố quan trọng cần theo dõi.", "Quý vị nên theo dõi thêm thông tin từ các nguồn chính thức trước khi ra quyết định."];
-  const closing = ["Cảm ơn quý vị đã theo dõi, hẹn gặp lại trong bản tin tiếp theo.", DISCLAIMER];
-  let body = [...parts]; let fi = 0;
-  while (wc([...body, ...closing].join(" ")) < 175 && fi < fillers.length){ body.splice(7 + fi*2 + 1, 0, fillers[fi]); fi++; }
-  const video_script = NFC([...body, ...closing].join(" "));
-  const sentiment = m.change_pct > 0.3 ? "BULLISH" : m.change_pct < -0.3 ? "BEARISH" : "NEUTRAL";
-  const ticker = `VN-INDEX ${fmt(m.close)} (${fmtSigned(m.change_pct)}%) | SMA20 ${fmt(m.sma20)} | RSI14 ${fmt(m.rsi14,1)}`.slice(0,120);
-  const scenarios = [
-    {name:"CƠ SỞ", description:`Dao động trong vùng ${fmt(m.support20)} – ${fmt(m.resistance20)} điểm, thị trường chờ thêm thông tin mới.`},
-    {name:"THẬN TRỌNG", description:`Nếu đánh mất hỗ trợ ${fmt(m.support20)} điểm, áp lực điều chỉnh có thể gia tăng.`}
-  ];
-  const social = NFC([
-    `📊 BẢN TIN CHỨNG KHOÁN ${SESSION_LABEL[ctx.session_type]} ${dmy(new Date(ctx.run_date))}`, "",
-    `• VN-Index: ${fmt(m.close)} điểm (${fmtSigned(m.change)} | ${fmtSigned(m.change_pct)}%)`,
-    `• SMA20: ${fmt(m.sma20)} · RSI14: ${fmt(m.rsi14)}`,
-    `• Hỗ trợ ${fmt(m.support20)} · Kháng cự ${fmt(m.resistance20)}`, "",
-    "📰 Tin đáng chú ý:", ...n.map(x => `• ${x.title} (${x.source})`), "",
-    `🔹 Kịch bản cơ sở: ${scenarios[0].description}`, `🔸 Kịch bản thận trọng: ${scenarios[1].description}`, "",
-    `Nguồn tin: ${[...new Set(n.map(x=>x.source))].join(", ")}.`, DISCLAIMER, AI_DECL
-  ].join("\n"));
-  return {
-    video_title:`Bản tin ${SESSION_LABEL[ctx.session_type].toLowerCase()} ${dmy(new Date(ctx.run_date))}: VN-Index ${dir} ${fmt(Math.abs(m.change_pct))}%`.slice(0,80),
-    market_sentiment:sentiment,
-    selected_news:n.map((x,i) => ({headline:x.title.split(" ").slice(0,12).join(" "), impact:"TRUNG LẬP", brief:x.summary, source_index:i})),
-    scenarios, social_post_text:social, video_script, ticker_text:ticker,
-    hashtags:["#chungkhoan","#VNIndex","#bantinchungkhoan","#taichinh"]
-  };
-}
-/* Factcheck số liệu bằng code (Mục 9.4.5) */
-const NUM_RE = /[+-]?\d{1,3}(?:\.\d{3})+(?:,\d+)?|[+-]?\d+(?:,\d+)?/g;
-const parseVN = s => parseFloat(s.replace(/\./g,"").replace(",","."));
-function factcheck(script, ctx){
-  const m = ctx.market, sd = new Date(m.session_date), rd = new Date(ctx.run_date);
-  const allowed = [m.close, m.change, m.change_pct, m.sma20, m.rsi14, m.support20, m.resistance20, m.volume, m.volume/1e6,
-    sd.getDate(), sd.getMonth()+1, sd.getFullYear(), rd.getDate(), rd.getMonth()+1, rd.getFullYear(), 1,2,3,4,5,6,7,8,9,10,14,20,60];
-  const newsText = ctx.news.map(x => x.title + " " + x.summary).join(" ");
-  (newsText.match(NUM_RE) || []).forEach(x => allowed.push(parseVN(x)));
-  const errs = [];
-  const text = [script.video_script, script.social_post_text, script.ticker_text].join("\n");
-  for (const raw of (text.match(NUM_RE) || [])){
-    const v = Math.abs(parseVN(raw));
-    const ok = allowed.some(a => { a = Math.abs(a); return Math.abs(a - v) <= 0.01 || (a && Math.abs(a - v)/a <= 0.005) || Math.abs(+a.toFixed(1) - v) <= 0.01; });
-    if (!ok) errs.push(`Số không có trong dữ liệu: ${raw}`);
-  }
-  const inputs = (newsText + " VNINDEX").toUpperCase();
-  for (const t of (script.video_script.match(/\b[A-Z]{3}\b/g) || [])){
-    if (!["SMA","RSI","HNX"].includes(t) && !inputs.includes(t)) errs.push(`Mã không có trong dữ liệu: ${t}`);
-  }
-  return errs;
-}
-function postcheck(script, ctx){
-  const errs = [];
-  const w = wc(script.video_script);
-  if (w < 160 || w > 220) errs.push(`video_script có ${w} từ (yêu cầu 160–220)`);
-  if (!script.video_script.trim().endsWith(DISCLAIMER)) errs.push("Thiếu câu miễn trừ ở cuối kịch bản (R-LEGAL-4)");
-  if (!script.social_post_text.includes(DISCLAIMER) || !script.social_post_text.includes(AI_DECL)) errs.push("Bài đăng thiếu miễn trừ hoặc khai báo AI (R-LEGAL-1)");
-  script.selected_news.forEach(h => wc(h.headline) > 12 && errs.push(`Headline quá 12 từ: ${h.headline}`));
-  if (script.selected_news.length < 3 || script.selected_news.length > 4) errs.push("selected_news phải có 3–4 tin");
-  if (script.scenarios.length !== 2) errs.push("Phải có đúng 2 kịch bản");
-  if (script.ticker_text.length > 120) errs.push("ticker_text quá 120 ký tự");
-  const all = (script.video_script + " " + script.social_post_text).toLowerCase();
-  BANNED.forEach(b => all.includes(b) && errs.push(`Cụm từ cấm: "${b}"`));
-  return errs.concat(factcheck(script, ctx));
-}
-
-/* ---------- Giọng đọc & phụ đề ---------- */
-function viNormalize(s){
-  return NFC(s).replace(/([+])(\d[\d.,]*)\s*điểm/g,"tăng $2 điểm").replace(/-(\d[\d.,]*)\s*điểm/g,"giảm $1 điểm")
-    .replace(/%/g," phần trăm").replace(/VN-INDEX/gi,"VN-Index").replace(/\|/g,".")
-    .replace(/[*#_~]/g,"").replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu,"").replace(/\s+/g," ").trim();
-}
-function wordTimings(text, ratePct){
-  // Ước lượng thời gian từng từ (bản thật: WordBoundary của edge-tts)
-  const words = text.split(/\s+/).filter(Boolean); const out = []; let t = 300;
-  const k = 1 / (1 + ratePct/100);
-  for (const w of words){
-    const dur = (170 + w.length*38) * k; out.push({text:w, start_ms:Math.round(t), end_ms:Math.round(t+dur)});
-    t += dur + (/[.,;:?!]$/.test(w) ? (/[.?!]$/.test(w) ? 380 : 180)*k : 40*k);
-  }
-  return out;
-}
-const measureCtx = document.createElement("canvas").getContext("2d");
-function buildCues(words){
-  measureCtx.font = `700 ${L.subs.size}px "Be Vietnam Pro","Segoe UI",sans-serif`;
-  const fits = s => measureCtx.measureText(s).width <= L.subs.maxW;
-  const cues = []; let lines = [""], start = null, last = null;
-  const flush = () => { if (start === null) return; cues.push({start, end:last.end_ms, lines:lines.filter(Boolean)}); lines = [""]; start = null; };
-  for (const w of words){
-    if (start === null) start = w.start_ms;
-    const cur = lines.at(-1), cand = cur ? cur + " " + w.text : w.text;
-    if (fits(cand)) lines[lines.length-1] = cand;
-    else if (lines.length < 2){ lines.push(w.text); }
-    else { flush(); start = w.start_ms; lines = [w.text]; }
-    last = w;
-    const dur = last.end_ms - start;
-    if ((/[.?!]$/.test(w.text) && dur >= 800) || dur >= 3500) flush();
-  }
-  flush();
-  for (let i=0;i<cues.length-1;i++) if (cues[i+1].start - cues[i].end < 150) cues[i].end = cues[i+1].start;
-  return cues;
-}
-function toSRT(cues){
-  const ts = ms => { const h=Math.floor(ms/3.6e6), m=Math.floor(ms/6e4)%60, s=Math.floor(ms/1000)%60, r=ms%1000; return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")},${String(r).padStart(3,"0")}`; };
-  return cues.map((c,i) => `${i+1}\n${ts(c.start)} --> ${ts(c.end)}\n${c.lines.join("\n")}\n`).join("\n");
-}
-function toASS(cues){
-  const ts = ms => { const cs = Math.round(ms/10); return `${Math.floor(cs/360000)}:${String(Math.floor(cs/6000)%60).padStart(2,"0")}:${String(Math.floor(cs/100)%60).padStart(2,"0")}.${String(cs%100).padStart(2,"0")}`; };
-  return `[Script Info]\nScriptType: v4.00+\nPlayResX: 1080\nPlayResY: 1920\nWrapStyle: 2\n\n[V4+ Styles]\nFormat: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding\nStyle: Main,Be Vietnam Pro,60,&H0015CCFA,&H00FFFFFF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,4,2,2,140,140,520,1\n\n[Events]\nFormat: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\n` +
-    cues.map(c => `Dialogue: 0,${ts(c.start)},${ts(c.end)},Main,,0,0,0,,${c.lines.join("\\N")}`).join("\n");
-}
-function speak(text, onend){
-  if (!("speechSynthesis" in window)) return false;
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(viNormalize(text));
-  const vs = speechSynthesis.getVoices().filter(v => v.lang && v.lang.toLowerCase().startsWith("vi"));
-  const want = $("#voiceSel").value.includes("NamMinh") ? /nam ?minh/i : /hoai ?my/i;
-  u.voice = vs.find(v => want.test(v.name)) || vs[0] || null; u.lang = "vi-VN";
-  u.rate = 1 + (+$("#rate").value)/100;
-  if (onend) u.onend = onend;
-  speechSynthesis.speak(u);
-  return u.voice ? u.voice.name : "giọng mặc định (máy chưa có giọng tiếng Việt)";
-}
-if ("speechSynthesis" in window) speechSynthesis.onvoiceschanged = () => {};
-
-/* ---------- Avatar: placeholder vẽ bằng canvas + crop 1080x976 ---------- */
-let avatarImg = null;
-function placeholderAvatar(){
-  const c = document.createElement("canvas"); c.width = 1080; c.height = 976; const g = c.getContext("2d");
-  const bg = g.createLinearGradient(0,0,0,976); bg.addColorStop(0,"#1e293b"); bg.addColorStop(1,"#0b1120"); g.fillStyle = bg; g.fillRect(0,0,1080,976);
-  g.fillStyle = "#0f172a"; for (let i=0;i<9;i++){ g.fillRect(60+i*115, 140 + (i%3)*30, 70, 500); }
-  g.fillStyle = "#334155"; g.beginPath(); g.ellipse(540, 1010, 360, 330, 0, Math.PI, 0); g.fill();
-  g.fillStyle = "#1d4ed8"; g.beginPath(); g.moveTo(470,690); g.lineTo(540,820); g.lineTo(610,690); g.fill();
-  g.fillStyle = "#e2b48f"; g.fillRect(500,560,80,140);
-  g.beginPath(); g.ellipse(540, 330, 150, 190, 0, 0, Math.PI*2); g.fill();
-  g.fillStyle = "#1f2937"; g.beginPath(); g.ellipse(540, 220, 165, 110, 0, Math.PI, 0); g.fill();
-  g.fillStyle = "#111827"; g.beginPath(); g.arc(485,320,14,0,7); g.arc(595,320,14,0,7); g.fill();
-  g.strokeStyle = "#9a3412"; g.lineWidth = 8; g.beginPath(); g.arc(540,400,45,0.15*Math.PI,0.85*Math.PI); g.stroke();
-  g.fillStyle = "rgba(255,255,255,.55)"; g.font = "600 30px 'Segoe UI'"; g.textAlign = "center"; g.fillText("ẢNH MẪU — hãy tải ảnh của bạn", 540, 930);
-  return c;
-}
-function cropPortrait(img){
-  const c = document.createElement("canvas"); c.width = 1080; c.height = 976; const g = c.getContext("2d");
-  const r = 1080/976, ir = img.width/img.height; let sw, sh, sx, sy;
-  if (ir > r){ sh = img.height; sw = sh*r; sx = (img.width-sw)/2; sy = 0; } else { sw = img.width; sh = sw/r; sx = 0; sy = Math.max(0,(img.height-sh)*0.25); }
-  g.drawImage(img, sx, sy, sw, sh, 0, 0, 1080, 976); return c;
-}
-function currentAvatar(){ return avatarImg || (avatarImg = placeholderAvatar()); }
-
-/* ---------- Thành phần đồ họa (Giai đoạn A) ---------- */
-const FONT = `"Be Vietnam Pro","Segoe UI",sans-serif`;
-function wrapText(g, text, maxW){ const words = text.split(" "), lines = []; let cur = ""; for (const w of words){ const t = cur ? cur+" "+w : w; if (g.measureText(t).width > maxW && cur){ lines.push(cur); cur = w; } else cur = t; } if (cur) lines.push(cur); return lines; }
-function watermark(g, w, h){
-  g.save(); g.translate(w/2,h/2); g.rotate(-0.32); g.fillStyle = "rgba(245,158,11,.22)"; g.font = `800 52px ${FONT}`; g.textAlign = "center";
-  g.fillText("DỮ LIỆU MINH HỌA", 0, -20); g.font = `700 32px ${FONT}`; g.fillText("KHÔNG PHẢI SỐ LIỆU THẬT", 0, 30); g.restore();
-}
-function renderChart(m){
-  const c = document.createElement("canvas"); c.width = 1080; c.height = 660; const g = c.getContext("2d");
-  g.fillStyle = "#0F172A"; g.fillRect(0,0,1080,660);
-  const bars = m.bars, x0 = 40, x1 = 1000, yTop = 120, yBot = 520, vTop = 540, vBot = 640;
-  const lo = Math.min(...bars.map(b=>b.low), m.support20)*0.998, hi = Math.max(...bars.map(b=>b.high), m.resistance20)*1.002;
-  const Y = v => yBot - (v-lo)/(hi-lo)*(yBot-yTop), step = (x1-x0)/bars.length;
-  g.strokeStyle = "#1E293B"; g.lineWidth = 1;
-  for (let i=0;i<=5;i++){ const y = yTop + i*(yBot-yTop)/5; g.beginPath(); g.moveTo(x0,y); g.lineTo(x1,y); g.stroke(); }
-  const maxV = Math.max(...bars.map(b=>b.volume));
-  bars.forEach((b,i) => { const x = x0 + i*step + step/2, upc = b.close >= b.open; g.strokeStyle = g.fillStyle = upc ? "#10B981" : "#F43F5E";
-    g.beginPath(); g.moveTo(x, Y(b.high)); g.lineTo(x, Y(b.low)); g.stroke();
-    const yo = Y(b.open), yc = Y(b.close); g.fillRect(x-step*0.32, Math.min(yo,yc), step*0.64, Math.max(2,Math.abs(yc-yo)));
-    g.globalAlpha = 0.45; const vh = b.volume/maxV*(vBot-vTop); g.fillRect(x-step*0.32, vBot-vh, step*0.64, vh); g.globalAlpha = 1; });
-  const s = sma(bars.map(b=>b.close),20); g.strokeStyle = "#F59E0B"; g.lineWidth = 3; g.beginPath(); let st = false;
-  s.forEach((v,i) => { if (v===null) return; const x = x0 + i*step + step/2; st ? g.lineTo(x,Y(v)) : g.moveTo(x,Y(v)); st = true; }); g.stroke();
-  g.setLineDash([10,8]); g.lineWidth = 2;
-  [[m.support20,"#10B981","Hỗ trợ"],[m.resistance20,"#F43F5E","Kháng cự"]].forEach(([v,col,lb]) => { g.strokeStyle = col; g.beginPath(); g.moveTo(x0,Y(v)); g.lineTo(x1,Y(v)); g.stroke();
-    g.fillStyle = col; g.font = `600 20px ${FONT}`; g.textAlign = "right"; g.fillText(`${lb} ${fmt(v)}`, 1015, Y(v)-8); });
-  g.setLineDash([]); g.textAlign = "left";
-  const up = m.change >= 0; g.font = `800 38px ${FONT}`; g.fillStyle = up ? "#10B981" : "#F43F5E";
-  g.fillText(`VN-INDEX | ${fmt(m.close)} (${fmtSigned(m.change)} | ${fmtSigned(m.change_pct)}%)`, 40, 58);
-  const sd = new Date(m.session_date+"T00:00:00");
-  g.fillStyle = "#E5E7EB"; g.font = `400 22px ${FONT}`; g.fillText(`Phiên ${dmy(sd)} · Nguồn: ${m.source} · SMA20 ${fmt(m.sma20)} · RSI14 ${fmt(m.rsi14)}`, 40, 94);
-  if (m.data_quality === "SYNTHETIC") watermark(g,1080,660);
-  return c;
-}
-function renderCard(h, src, m, idx){
-  const c = document.createElement("canvas"); c.width = 1080; c.height = 660; const g = c.getContext("2d");
-  const gr = g.createLinearGradient(0,0,1080,660); gr.addColorStop(0,"#0F172A"); gr.addColorStop(1,"#111827"); g.fillStyle = gr; g.fillRect(0,0,1080,660);
-  const col = {"TÍCH CỰC":"#10B981","TIÊU CỰC":"#F43F5E","TRUNG LẬP":"#F59E0B"}[h.impact];
-  g.fillStyle = col; g.fillRect(60,100,8,440);
-  g.font = `700 26px ${FONT}`; const tw = g.measureText(h.impact).width + 36; g.globalAlpha = .18; g.fillRect(96,100,tw,46); g.globalAlpha = 1; g.fillText(h.impact, 114, 133);
-  g.fillStyle = "#9CA3AF"; g.font = `600 24px ${FONT}`; g.fillText(`TIN NÓNG #${idx+1}`, 120 + tw, 133);
-  let size = 62, lines; do { g.font = `800 ${size}px ${FONT}`; lines = wrapText(g, h.headline, 880); size -= 4; } while (lines.length > 3 && size > 40);
-  g.fillStyle = "#F9FAFB"; lines.slice(0,3).forEach((l,i) => g.fillText(l, 96, 230 + i*(size+16)));
-  g.font = `400 32px ${FONT}`; g.fillStyle = "#CBD5E1"; wrapText(g, h.brief, 880).slice(0,2).forEach((l,i) => g.fillText(l, 96, 230 + lines.length*(size+16) + 30 + i*44));
-  g.font = `600 24px ${FONT}`; g.fillStyle = "#64748B"; g.fillText(`Nguồn: ${src}`, 96, 600);
-  if (m.data_quality === "SYNTHETIC") watermark(g,1080,660);
-  return c;
-}
-function renderTickerStrip(text){
-  measureCtx.font = `500 34px ${FONT}`; const seg = text + "  •  "; const S = Math.ceil(measureCtx.measureText(seg).width);
-  const n = Math.ceil(1080/S) + 1; const c = document.createElement("canvas"); c.width = S*n; c.height = 60; const g = c.getContext("2d");
-  g.fillStyle = "#111827"; g.fillRect(0,0,c.width,60); g.fillStyle = "#E5E7EB"; g.font = `500 34px ${FONT}`; g.textBaseline = "middle";
-  for (let i=0;i<n;i++) g.fillText(seg, i*S, 31); return {canvas:c, S};
-}
-function prepareAssets(job){
-  if (job._assets) return job._assets;
-  const m = job.market, sc = job.script;
-  const chart = renderChart(m);
-  const cards = sc.selected_news.map((h,i) => renderCard(h, job.news[h.source_index]?.source || "", m, i));
-  const seq = [chart, ...cards, chart]; const D = job.duration_s; const xf = 0.4;
-  const segLen = (D + xf*(seq.length-1)) / seq.length;
-  job._assets = {chart, cards, seq, segLen, xf, ticker:renderTickerStrip(sc.ticker_text)};
-  return job._assets;
-}
-
-/* ---------- Dựng khung hình (Giai đoạn B — cùng filtergraph, vẽ bằng canvas) ---------- */
-function drawFrame(g, job, t, opt={}){
-  const A = prepareAssets(job), D = job.duration_s, m = job.market;
-  g.save(); g.scale(g.canvas.width/1080, g.canvas.height/1920);
-  g.fillStyle = "#0B1120"; g.fillRect(0,0,1080,1920);
-  // Header Z1
-  g.fillStyle = "#10B981"; g.fillRect(60,138,64,64); g.fillStyle = "#04130d"; g.font = `900 30px ${FONT}`; g.textAlign = "center"; g.fillText("SA",92,182);
-  g.textAlign = "left"; g.fillStyle = "#F9FAFB"; g.font = `800 36px ${FONT}`; g.fillText("BẢN TIN CHỨNG KHOÁN", 140, 168);
-  g.fillStyle = "#34d399"; g.font = `600 26px ${FONT}`; g.fillText(SESSION_LABEL[job.session_type], 140, 204);
-  g.fillStyle = "#9CA3AF"; g.textAlign = "right"; g.font = `600 28px ${FONT}`; g.fillText(dmy(new Date(job.run_date)), 1020, 182); g.textAlign = "left";
-  // Ticker Z2
-  const tk = A.ticker; g.drawImage(tk.canvas, -((t*L.ticker.speed) % tk.S), L.ticker.y);
-  // B-roll Z3 với xfade
-  const pos = i => i*(A.segLen - A.xf);
-  let idx = 0; for (let i=0;i<A.seq.length;i++) if (t >= pos(i)) idx = i;
-  const drawSeg = (i, alpha) => { const lt = t - pos(i); const zoom = (i===0 || i===A.seq.length-1) ? 1 + 0.04*Math.min(1, lt/A.segLen) : 1;
-    g.globalAlpha = alpha; g.save(); g.beginPath(); g.rect(0,L.broll.y,1080,L.broll.h); g.clip();
-    g.drawImage(A.seq[i], 540 - 540*zoom, L.broll.y + 330 - 330*zoom, 1080*zoom, 660*zoom); g.restore(); g.globalAlpha = 1; };
-  drawSeg(idx, 1);
-  if (idx+1 < A.seq.length && t > pos(idx+1) - A.xf){ drawSeg(idx+1, Math.min(1, (t - (pos(idx+1) - A.xf))/A.xf)); }
-  // Nhãn AI cố định
-  g.font = `700 24px ${FONT}`; const lbl = "Nội dung có sử dụng AI"; const lw = g.measureText(lbl).width;
-  g.fillStyle = "rgba(15,23,42,.85)"; roundRect(g, L.aiLabel.x, L.aiLabel.y, lw + 86, 44, 22); g.fill();
-  g.fillStyle = "#8B5CF6"; roundRect(g, L.aiLabel.x+6, L.aiLabel.y+6, 50, 32, 16); g.fill();
-  g.fillStyle = "#fff"; g.fillText("AI", L.aiLabel.x+16, L.aiLabel.y+31); g.fillStyle = "#E5E7EB"; g.fillText(lbl, L.aiLabel.x+68, L.aiLabel.y+31);
-  // Z4 đường phân cách phát sáng
-  g.shadowColor = "#10B981"; g.shadowBlur = 24; g.fillStyle = "#10B981"; g.fillRect(0, L.divider.y, 1080, 4); g.shadowBlur = 0;
-  // Z5 avatar — "nhịp thở" chu kỳ 6s
-  const av = job._avatar || currentAvatar(); const z = 1.03 + 0.03*Math.sin(2*Math.PI*t/6);
-  g.save(); g.beginPath(); g.rect(0, L.avatar.y, 1080, L.avatar.h); g.clip();
-  g.drawImage(av, 540 - 540*z, L.avatar.y + 488 - 488*z, 1080*z, 976*z); g.restore();
-  // Phụ đề
-  const cue = job.cues.find(c => t*1000 >= c.start && t*1000 < c.end);
-  if (cue){ g.font = `700 ${L.subs.size}px ${FONT}`; g.textAlign = "center"; g.lineJoin = "round";
-    cue.lines.forEach((ln,i) => { const y = L.subs.bottom - (cue.lines.length-1-i)*72 - 14;
-      g.lineWidth = 10; g.strokeStyle = "#000"; g.strokeText(ln, 540, y); g.fillStyle = "#FACC15"; g.fillText(ln, 540, y); });
-    g.textAlign = "left"; }
-  // Sóng âm (trang trí)
-  const speaking = job.words.some(w => t*1000 >= w.start_ms && t*1000 <= w.end_ms);
-  g.strokeStyle = "rgba(16,185,129,.8)"; g.lineWidth = 3; g.beginPath();
-  for (let x=0;x<=L.wave.w;x+=6){ const a = speaking ? (Math.sin(x*0.09 + t*20)*Math.sin(x*0.013 + t*3))*24 : 1.5; g.moveTo(L.wave.x+x, L.wave.y+30-a); g.lineTo(L.wave.x+x, L.wave.y+30+a); } g.stroke();
-  // 3 giây đầu: nhãn AI mở rộng
-  if (t < 3){ g.fillStyle = "rgba(76,29,149,.92)"; roundRect(g, 76, 360, 928, 92, 18); g.fill(); g.fillStyle = "#fff"; g.font = `700 34px ${FONT}`; g.textAlign = "center";
-    g.fillText("Video có sử dụng AI: MC ảo & giọng đọc tổng hợp", 540, 418); g.textAlign = "left"; }
-  // 4 giây cuối: miễn trừ
-  if (t >= D - 4){ const d = L.disclaimer; g.fillStyle = "rgba(0,0,0,.82)"; roundRect(g, d.x, d.y, d.w, d.h, 14); g.fill();
-    g.fillStyle = "#FDE68A"; g.font = `600 28px ${FONT}`; g.textAlign = "center"; g.fillText(DISCLAIMER, d.x + d.w/2, d.y + 45); g.textAlign = "left"; }
-  // Debug safe-zone
-  if (opt.safe){ g.fillStyle = "rgba(244,63,94,.33)"; g.fillRect(0,0,1080,L.unsafe.topY); g.fillRect(0,L.unsafe.bottomY,1080,1920-L.unsafe.bottomY); g.fillRect(L.unsafe.rightX,L.unsafe.rightFromY,120,L.unsafe.bottomY-L.unsafe.rightFromY);
-    g.fillStyle = "#fff"; g.font = `700 30px ${FONT}`; g.fillText("Vùng bị UI nền tảng che", 40, 1500); }
-  g.restore();
-}
-function roundRect(g,x,y,w,h,r){ g.beginPath(); g.moveTo(x+r,y); g.arcTo(x+w,y,x+w,y+h,r); g.arcTo(x+w,y+h,x,y+h,r); g.arcTo(x,y+h,x,y,r); g.arcTo(x,y,x+w,y,r); g.closePath(); }
-function drawEmpty(g){
-  g.save(); g.scale(g.canvas.width/1080, g.canvas.height/1920); g.fillStyle = "#0B1120"; g.fillRect(0,0,1080,1920);
-  g.fillStyle = "#1F2937"; g.fillRect(0,940,1080,4); g.fillStyle = "#64748B"; g.font = `600 40px ${FONT}`; g.textAlign = "center";
-  g.fillText("Chưa có video", 540, 620); g.font = `400 30px ${FONT}`; g.fillText("Bấm “Chạy quy trình ngay”", 540, 680);
-  g.globalAlpha = .5; g.drawImage(currentAvatar(), 0, 944, 1080, 976); g.restore();
-}
-
-/* ---------- Trình phát xem trước ---------- */
-function makePlayer(canvas, playBtn, seek, timeLbl, voiceChk){
-  const g = canvas.getContext("2d"); const P = {job:null, t:0, playing:false, safe:false, raf:0, t0:0};
-  const fmtT = s => `${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,"0")}`;
-  P.draw = () => { if (!P.job) return drawEmpty(g); drawFrame(g, P.job, P.t, {safe:P.safe}); seek.value = Math.round(P.t/P.job.duration_s*1000); timeLbl.textContent = `${fmtT(P.t)} / ${fmtT(P.job.duration_s)}`; };
-  const loop = now => { if (!P.playing) return; P.t = (now - P.t0)/1000; if (P.t >= P.job.duration_s){ P.t = P.job.duration_s; P.stop(); } P.draw(); P.raf = requestAnimationFrame(loop); };
-  P.play = () => { if (!P.job) return; if (P.t >= P.job.duration_s - .05) P.t = 0; P.playing = true; playBtn.textContent = "⏸"; P.t0 = performance.now() - P.t*1000;
-    if (voiceChk?.checked && P.t < 1) speak(P.job.script.video_script); P.raf = requestAnimationFrame(loop); };
-  P.stop = () => { P.playing = false; playBtn.textContent = "▶"; cancelAnimationFrame(P.raf); if ("speechSynthesis" in window) speechSynthesis.cancel(); };
-  P.load = job => { P.stop(); P.job = job; P.t = Math.min(4, job ? job.duration_s : 0); P.draw(); };
-  playBtn.onclick = () => P.playing ? P.stop() : P.play();
-  seek.oninput = () => { if (!P.job) return; const was = P.playing; P.stop(); P.t = seek.value/1000*P.job.duration_s; P.draw(); if (was){ P.playing = true; playBtn.textContent = "⏸"; P.t0 = performance.now() - P.t*1000; P.raf = requestAnimationFrame(loop); } };
-  P.draw(); return P;
-}
-
-/* ---------- Trạng thái ứng dụng ---------- */
-let jobs = store.get("jobs", []);
-let schedules = store.get("schedules", [{id:1,name:"Bản tin trước phiên",session_type:"PRE_MARKET",time:"07:30",days:"mon-fri",platforms:["telegram"],require_approval:true,is_active:true,last_run_at:null,last_status:null},
-                                         {id:2,name:"Tổng kết sau phiên",session_type:"POST_MARKET",time:"15:30",days:"mon-fri",platforms:["telegram","youtube"],require_approval:true,is_active:true,last_run_at:null,last_status:null}]);
-let settings = store.get("settings", {mode:"DEMO", avatar_provider:"demo"});
-const secrets = {}; // chỉ trong bộ nhớ
-let running = null; let selectedJob = null;
-const saveJobs = () => store.set("jobs", jobs.map(j => { const {_assets, _avatar, ...r} = j; return r; }));
-const saveSched = () => store.set("schedules", schedules);
-const saveSettings = () => store.set("settings", settings);
-function hydrate(j){ j._avatar = currentAvatar(); return j; }
-jobs.forEach(hydrate);
-// R-RUN-4: job còn RUNNING từ lần trước → FAILED/INTERRUPTED
-jobs.forEach(j => { if (j.status === "RUNNING" || j.status === "PUBLISHING"){ j.status = "FAILED"; j.error_code = "INTERRUPTED"; j.error_message = "Ứng dụng bị đóng khi job đang chạy."; } }); saveJobs();
-const storedAv = store.get("avatar", null);
-if (storedAv){ const im = new Image(); im.onload = () => { avatarImg = cropPortrait(im); jobs.forEach(hydrate); drawAvPrev(); dashPlayer.draw(); $("#avStatus").textContent = `Đang dùng ảnh của: ${storedAv.consent.subject_name} (đã ghi nhận đồng ý ${new Date(storedAv.consent.created_at).toLocaleString("vi-VN")}).`; }; im.src = storedAv.dataUrl; }
-
-/* ---------- Toast ---------- */
-let toastT; function toast(msg, col="#10B981"){ const t = $("#toast"); t.textContent = msg; t.style.borderLeftColor = col; t.style.display = "block"; clearTimeout(toastT); toastT = setTimeout(() => t.style.display = "none", 4200); }
-
-/* ---------- Bảng điều khiển ---------- */
-const STEP_NAMES = ["1. Thu thập","2. AI biên tập","3. Giọng và avatar","4. Dựng video","5. Xuất bản"];
-const STEP_RANGE = [[0,20],[20,35],[35,70],[70,95],[95,100]];
-$("#steps").innerHTML = STEP_NAMES.map((n,i) => `<div class="step" id="st${i}">${n}<div class="bar"></div></div>`).join("");
-const dashPlayer = makePlayer($("#dashCanvas"), $("#dashPlay"), $("#dashSeek"), $("#dashTime"), $("#dashVoice"));
-let logLines = [];
-function termWrite(level, msg){
-  const ts = new Date().toLocaleTimeString("vi-VN", {hour12:false});
-  const term = $("#term"); if (!logLines.length) term.innerHTML = "";
-  logLines.push(`[${ts}] ${level.padEnd(7)} ${msg}`);
-  const d = document.createElement("div"); d.className = level; d.innerHTML = `<span class="ts">[${ts}]</span> ${level === "SUCCESS" ? "✔" : level === "WARN" ? "⚠" : level === "ERROR" ? "✖" : "›"} ${escapeHtml(msg)}`;
-  term.appendChild(d); term.scrollTop = term.scrollHeight;
-}
-const escapeHtml = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-$("#copyLog").onclick = () => { navigator.clipboard?.writeText(logLines.join("\n")); toast("Đã sao chép log"); };
-$("#clrLog").onclick = () => { logLines = []; $("#term").innerHTML = '<span class="muted">Log trống.</span>'; };
-function setStep(i, state, pct){ const el = $("#st"+i); el.className = "step " + (state||""); el.querySelector(".bar").style.width = (pct ?? (state==="done"?100:0)) + "%"; }
-function setProgress(p){ $("#progBar").style.width = p + "%"; }
-
-async function runPipeline(session_type, trigger="MANUAL", schedule=null){
-  if (running){ toast("Đang có job chạy (409) — vui lòng chờ.", "#F43F5E"); return null; }
-  const now = new Date();
-  const job = hydrate({ id:uuid(), run_date:ymd(now), session_type, trigger, schedule_id:schedule?.id ?? null, mode:settings.mode, status:"RUNNING",
-    current_step:0, progress_pct:0, created_at:now.toISOString(), events:[], publish_logs:[], platforms:schedule?.platforms || ["telegram","facebook","youtube","tiktok"],
-    require_approval: schedule ? schedule.require_approval : true });
-  running = job; const ctl = {cancelled:false}; running._ctl = ctl;
-  logLines = []; STEP_NAMES.forEach((_,i) => setStep(i,"",0)); setProgress(0);
-  $("#runBtn").classList.add("busy"); $("#runBtn span").textContent = "Hủy job đang chạy";
-  const log = async (level, msg, step=job.current_step) => { job.events.push({ts:new Date().toISOString(), step, level, message:msg}); termWrite(level, msg); await sleep(level === "DEBUG" ? 70 : 160); if (ctl.cancelled) throw new Error("CANCELLED"); };
-  const prog = (i, f) => { const [a,b] = STEP_RANGE[i]; job.progress_pct = Math.round(a + (b-a)*f); setProgress(job.progress_pct); setStep(i, f>=1?"done":"doing", f*100); };
-  try{
-    await log("INFO", `Bắt đầu job ${job.id.slice(0,8)} · ${SESSION_LABEL[session_type]} · chế độ ${settings.mode} · kích hoạt ${trigger}`);
-    // B1
-    job.current_step = 1; prog(0, .05);
-    await log("INFO", "B1 · Tải RSS song song: CafeF, Vietstock, VnEconomy (bản demo dùng fixture, không gọi mạng)");
-    const news = await collectNews(now, log); prog(0,.45);
-    await log("SUCCESS", `Giữ lại ${news.length} tin sau lọc chủ đề + chống trùng; xếp hạng 0,5·độ mới + 0,3·từ khóa + 0,2·số nguồn`);
-    news.slice(0,3).forEach((n,i) => termWrite("DEBUG", `  #${i} [${n.score}] ${n.title} — ${n.source}`));
-    await log("INFO", "Chuỗi provider thị trường: PublicVci → Cache → Synthetic");
-    await log("WARN", "PublicVci: chế độ offline, bỏ qua · Cache: chưa có snapshot thật");
-    const market = buildSnapshot(syntheticBars(now), "SyntheticProvider (seed theo ngày)", "SYNTHETIC");
-    job.market = market; job.news = news; job.data_quality = market.data_quality; prog(0,.8);
-    await log("WARN", "Dùng dữ liệu MINH HỌA (SYNTHETIC) → biểu đồ/video có watermark, bước Xuất bản bị chặn (R-DATA-2, R-PUB-1)");
-    await log("SUCCESS", `VN-Index ${fmt(market.close)} (${fmtSigned(market.change_pct)}%) · SMA20 ${fmt(market.sma20)} · RSI14 Wilder ${fmt(market.rsi14)} · HT ${fmt(market.support20)} · KC ${fmt(market.resistance20)}`);
-    await log("SUCCESS", "Đã vẽ chart.png 1080×660 (60 nến + khối lượng + SMA20 + hỗ trợ/kháng cự)"); prog(0,1);
-    updateCards(market);
-    // B2
-    job.current_step = 2; prog(1,.1);
-    const ctx = {run_date:job.run_date, session_type, market, news, hook_style:HOOKS[now.getDate()%HOOKS.length]};
-    await log("INFO", `B2 · Hook style hôm nay: "${ctx.hook_style}"`);
-    await log("WARN", secrets.gemini_api_key ? "Gemini: bản demo không gọi API thật → dùng TemplateFallbackProvider" : "Gemini: chưa có khóa API → dùng TemplateFallbackProvider");
-    const script = templateScript(ctx); prog(1,.5);
-    // tự kiểm factcheck với số bịa
-    const fake = {...script, video_script: script.video_script.replace("Xin chào", "VN-Index có thể lên 1.999,99 điểm. Xin chào")};
-    const fakeErr = factcheck(fake, ctx);
-    await log(fakeErr.length ? "SUCCESS" : "ERROR", `Tự kiểm factcheck: chèn số bịa "1.999,99" → ${fakeErr.length ? "bị chặn ✓" : "KHÔNG bị chặn ✗"}`);
-    const errs = postcheck(script, ctx);
-    job.factcheck_passed = errs.length ? 0 : 1; job.llm_provider = "template_fallback"; job.llm_model = "-";
-    if (errs.length){ errs.forEach(e => termWrite("ERROR", e)); throw Object.assign(new Error("Hậu kiểm kịch bản thất bại"), {code:"SCRIPT_INVALID"}); }
-    job.script = script; job.video_title = script.video_title; job.social_post_text = script.social_post_text;
-    await log("SUCCESS", `Kịch bản hợp lệ: ${wc(script.video_script)} từ · 2 kịch bản · ${script.selected_news.length} tin · factcheck số liệu ĐẠT · có miễn trừ + khai báo AI`); prog(1,1);
-    // B3
-    job.current_step = 3; prog(2,.05);
-    const voice = $("#voiceSel").value, rate = +$("#rate").value;
-    await log("INFO", `B3 · Chuẩn hóa văn bản cho TTS (% → "phần trăm", +/− điểm → tăng/giảm, bỏ emoji)`);
-    await log("INFO", `TTS ${voice} rate ${rate>=0?"+":""}${rate}% (bản thật: edge-tts boundary="WordBoundary")`);
-    const words = wordTimings(viNormalize(script.video_script), rate); job.words = words;
-    job.duration_s = +((words.at(-1).end_ms + 600)/1000).toFixed(2); prog(2,.4);
-    await log(job.duration_s >= 45 && job.duration_s <= 95 ? "SUCCESS" : "WARN", `voice.mp3 ≈ ${fmt(job.duration_s,1)} giây (yêu cầu 45–95 giây) · ${words.length} WordTiming`);
-    job.cues = buildCues(words); job.srt = toSRT(job.cues); job.ass = toASS(job.cues);
-    await log("SUCCESS", `Phụ đề: ${job.cues.length} cue, tối đa 2 dòng, mỗi dòng ≤ 800 px → subs.srt + subs.ass`); prog(2,.6);
-    const consent = store.get("avatar", null)?.consent;
-    const prov = settings.avatar_provider;
-    if (prov !== "demo" && !consent){ await log("WARN", "Provider trả phí cần bản ghi đồng ý (R-LEGAL-3) → chuyển về DemoMotion"); }
-    job.avatar_provider = "DemoMotion"; job.avatar_has_lipsync = false; job.est_cost_usd = 0;
-    await log("INFO", `Avatar: ${consent ? "ảnh người dùng (" + consent.subject_name + ", đã có đồng ý)" : "ảnh mẫu placeholder (is_placeholder=1)"} → crop 1080×976`);
-    await log("SUCCESS", "DemoMotion: zoompan nhịp thở 6 giây, 30 fps, khớp độ dài audio ± 0,1 giây (R-AV-2) · chi phí 0 đồng"); prog(2,1);
-    // B4
-    job.current_step = 4; prog(3,.05);
-    await log("INFO", "B4 · Giai đoạn A: base.png, news_card_1..3.png, ticker_strip.png, ai_intro.png, disclaimer.png");
-    job._assets = null; prepareAssets(job); prog(3,.4);
-    await log("INFO", `B-roll: chart → card1 → card2 → card3 → chart, xfade 0,4 giây, mỗi đoạn ≈ ${fmt(job._assets.segLen,1)} giây`);
-    await log("INFO", "Giai đoạn B: overlay theo layout v3 (header 120–220, ticker 220–280, B-roll 280–940, avatar 944–1920, phụ đề đáy y=1400)");
-    dashPlayer.load(job); prog(3,.8);
-    await log("SUCCESS", "Kiểm tra ffprobe (mô phỏng): 1080×1920 · 30 fps · có audio · metadata comment=\"AI-generated content…\" · ai_label_applied=1");
-    job.ai_label_applied = 1; job.width = 1080; job.height = 1920; prog(3,1);
-    // B5
-    job.current_step = 5; prog(4,.2);
-    if (job.require_approval){ job.status = "WAITING_APPROVAL"; await log("WARN", "B5 · Chờ duyệt (human-in-the-loop) → mở tab Kho nội dung để xem, sửa caption và Duyệt & Đăng"); }
-    else { await log("INFO", "B5 · Tự đăng (không cần duyệt), trừ TikTok"); await publishJob(job, job.platforms.filter(p => p !== "tiktok"), {}, log); }
-    prog(4, job.status === "WAITING_APPROVAL" ? .5 : 1);
-    job.completed_at = new Date().toISOString();
-    await log("SUCCESS", `Hoàn tất job · trạng thái ${job.status} · thời lượng video ${fmt(job.duration_s,1)} giây`);
-    toast(job.status === "WAITING_APPROVAL" ? "Video đã dựng xong — đang chờ bạn duyệt" : "Job hoàn tất");
-  } catch(e){
-    if (e.message === "CANCELLED"){ job.status = "CANCELLED"; termWrite("WARN", "Người dùng đã hủy job"); }
-    else { job.status = "FAILED"; job.error_code = e.code || "UNEXPECTED"; job.error_message = e.message; termWrite("ERROR", e.message); setStep(Math.max(0,job.current_step-1), "err", 100); }
-  } finally {
-    running = null; $("#runBtn").classList.remove("busy"); $("#runBtn span").textContent = "Chạy quy trình ngay";
-    if (job.market){ jobs.unshift(job); saveJobs(); }
-    if (schedule){ schedule.last_run_at = new Date().toISOString(); schedule.last_status = job.status; saveSched(); renderSched(); }
-    refreshAll(); if (job.status === "WAITING_APPROVAL"){ selectedJob = job.id; }
-  }
-  return job;
-}
-$("#runBtn").onclick = () => { if (running){ running._ctl.cancelled = true; return; } runPipeline($("#sessSel").value); };
-
-function updateCards(m){
-  if (!m){ return; }
-  $("#cIdx").textContent = fmt(m.close); const up = m.change >= 0;
-  $("#cChg").innerHTML = `<span class="${up?"up":"down"}">${fmtSigned(m.change)} (${fmtSigned(m.change_pct)}%)</span>`;
-  $("#qBadge").textContent = m.data_quality === "SYNTHETIC" ? "minh họa" : m.data_quality === "CACHED" ? "cached" : "live";
-  $("#qBadge").className = "badge " + (m.data_quality === "LIVE" ? "b-live" : "b-syn");
-}
-function nextRun(){
-  const now = new Date(); let best = null;
-  for (const s of schedules.filter(s => s.is_active)){
-    const [h,mi] = s.time.split(":").map(Number);
-    for (let d=0; d<8; d++){ const c = new Date(now); c.setDate(c.getDate()+d); c.setHours(h,mi,0,0);
-      if (c <= now) continue; if (s.days === "mon-fri" && (c.getDay()===0 || c.getDay()===6)) continue;
-      if (!best || c < best.at) best = {at:c, s}; break; }
-  }
-  return best;
-}
-function tick(){
-  const n = nextRun();
-  if (n){ const sec = Math.floor((n.at - new Date())/1000); $("#cNext").textContent = n.s.time;
-    $("#cCount").textContent = `còn ${String(Math.floor(sec/3600)).padStart(2,"0")}:${String(Math.floor(sec/60)%60).padStart(2,"0")}:${String(sec%60).padStart(2,"0")}${sec >= 86400 ? " (" + ["CN","T2","T3","T4","T5","T6","T7"][n.at.getDay()] + ")" : ""}`; }
-  else { $("#cNext").textContent = "--:--"; $("#cCount").textContent = "Chưa có lịch đang bật"; }
-  // Bộ lập lịch: kích hoạt khi đến giờ (độ trễ cho phép 60 giây)
-  const now = new Date();
-  for (const s of schedules.filter(s => s.is_active)){
-    const [h,mi] = s.time.split(":").map(Number); const at = new Date(now); at.setHours(h,mi,0,0);
-    if (s.days === "mon-fri" && (now.getDay()===0 || now.getDay()===6)) continue;
-    const diff = now - at; const key = `${s.id}@${ymd(now)}T${s.time}`;
-    if (diff >= 0 && diff < 60000 && s._fired !== key && !running){ s._fired = key; toast(`Đến giờ lịch "${s.name}" — tự chạy quy trình`); switchTab("dash"); runPipeline(s.session_type, "SCHEDULE", s); }
-  }
-}
-function refreshAll(){
-  $("#cVid").textContent = jobs.filter(j => j.final || j.ai_label_applied).length;
-  const w = jobs.filter(j => j.status === "WAITING_APPROVAL").length;
-  $("#cWait").textContent = `${w} chờ duyệt`; $("#navWait").innerHTML = w ? `<span class="badge b-wait">${w}</span>` : "";
-  $("#cMode").textContent = settings.mode === "DEMO" ? "Demo" : "Production";
-  $("#cCost").textContent = settings.mode === "DEMO" ? "0 đồng" : "theo provider";
-  $("#banner").className = "banner" + (settings.mode === "PRODUCTION" ? " prod" : "");
-  $("#banner").textContent = settings.mode === "DEMO" ? "⚗ Chế độ demo: mọi dịch vụ đều mô phỏng, không gửi dữ liệu ra ngoài" : "● PRODUCTION (bản demo vẫn không gọi API thật — cần backend Python)";
-  if (jobs[0]?.market) updateCards(jobs[0].market);
-  renderPreflight(); renderLib();
-}
-function renderPreflight(){
-  const items = [
-    ["Trình duyệt hỗ trợ Canvas", true, ""],
-    ["Giọng đọc tiếng Việt của trình duyệt", ("speechSynthesis" in window) && speechSynthesis.getVoices().some(v => v.lang?.toLowerCase().startsWith("vi")), "Mở bằng Microsoft Edge để có giọng HoaiMy/NamMinh Online, hoặc cài gói giọng Tiếng Việt trong Windows"],
-    ["FFmpeg (ass, zoompan, showwaves, xfade, loudnorm, libx264)", null, "Bản thật cần: winget install Gyan.FFmpeg"],
-    ["Lưu trữ cục bộ (localStorage)", store.set("probe",1), "Trình duyệt đang chặn lưu trữ — dữ liệu sẽ mất khi đóng tab"],
-    ["Ảnh chân dung + bản ghi đồng ý", !!store.get("avatar",null), "Đang dùng ảnh mẫu — tải ảnh của bạn ở tab Nhân vật & giọng"]
-  ];
-  $("#pfTable").innerHTML = items.map(([n,ok,h]) => `<tr><td>${ok===true?"✅":ok===false?"⚠️":"ℹ️"}</td><td>${n}${ok!==true && h ? `<div class="small muted">${h}</div>` : ""}</td></tr>`).join("");
-  const warn = items.filter(i => i[1] === false && i[0].startsWith("Giọng"));
-  $("#preflight").innerHTML = warn.length ? `<div class="note">⚠ ${warn[0][0]}: chưa tìm thấy. ${warn[0][2]}. Video vẫn dựng bình thường, chỉ phần đọc thử dùng giọng mặc định.</div>` : "";
-}
-
-/* ---------- Xuất bản ---------- */
-const PLATFORM_NAME = {telegram:"Telegram", facebook:"Facebook Reels", youtube:"YouTube Shorts", tiktok:"TikTok"};
-function buildCaption(job, p){
-  const t = job.video_title, txt = job.social_post_text, tags = job.script.hashtags.join(" ");
-  if (p === "telegram"){ const lines = txt.split("\n").filter(Boolean); return (`<b>${t}</b>\n` + lines.slice(1,4).join("\n") + "\nChi tiết ở tin nhắn bên dưới.\n" + AI_DECL).slice(0,1024); }
-  if (p === "youtube") return {title:(t.slice(0, 100 - 8) + " #Shorts"), description:(txt + "\n" + tags + " #Shorts").slice(0,5000)};
-  if (p === "tiktok") return (txt + "\n" + tags).slice(0,2200);
-  return (txt + "\n" + tags).slice(0,2200);
-}
-async function publishJob(job, platforms, privacy, log=async (l,m)=>termWrite(l,m)){
-  job.status = "PUBLISHING";
-  for (const p of platforms){
-    if (job.publish_logs.some(x => x.platform === p && x.status === "SUCCESS")){ await log("INFO", `${PLATFORM_NAME[p]}: đã đăng trước đó → bỏ qua (R-PUB-2)`); continue; }
-    const blocked = job.data_quality === "SYNTHETIC" || !job.ai_label_applied || settings.mode === "DEMO";
-    const preview = {platform:p, title:job.video_title, caption:buildCaption(job,p), privacy:privacy[p] || (p==="tiktok"?"SELF_ONLY":"private"),
-      flags: p==="tiktok" ? {is_aigc:true} : p==="youtube" ? {containsSyntheticMedia:true, selfDeclaredMadeForKids:false} : {}};
-    job.publish_logs.push({platform:p, status: blocked ? "DRY_RUN" : "SUCCESS", privacy_level:preview.privacy, preview, created_at:new Date().toISOString(),
-      error_message: blocked ? (job.data_quality === "SYNTHETIC" ? "Dữ liệu minh họa → chỉ dry-run (R-PUB-1)" : "Chế độ DEMO → dry-run") : null});
-    await log(blocked ? "WARN" : "SUCCESS", `${PLATFORM_NAME[p]}: ${blocked ? "DRY_RUN — đã lưu publish_preview.json" : "đăng thành công"} · quyền riêng tư ${preview.privacy}`);
-  }
-  job.status = "COMPLETED"; saveJobs();
-}
-
-/* ---------- Kho nội dung ---------- */
-let libPlayer = null;
-const STATUS_BADGE = {WAITING_APPROVAL:["Chờ duyệt","b-wait"], COMPLETED:["Hoàn tất","b-ok"], FAILED:["Lỗi","b-fail"], CANCELLED:["Đã hủy","b-fail"], RUNNING:["Đang chạy","b-dry"]};
-function renderLib(){
-  const f = $("#libFilter").value; const list = jobs.filter(j => !f || j.status === f);
-  $("#jobList").innerHTML = list.length ? list.map(j => { const [lb,cl] = STATUS_BADGE[j.status] || [j.status,"b-dry"];
-    return `<div class="job ${j.id===selectedJob?"sel":""} ${j.status==="WAITING_APPROVAL"?"wait":""}" data-id="${j.id}"><div><b>${escapeHtml(j.video_title || "(không có tiêu đề)")}</b><div class="small muted">${new Date(j.created_at).toLocaleString("vi-VN")} · ${SESSION_LABEL[j.session_type]} · ${j.trigger} · ${j.duration_s ? fmt(j.duration_s,1)+" giây" : ""}</div></div><div><span class="badge b-syn">${j.data_quality==="SYNTHETIC"?"MINH HỌA":j.data_quality||""}</span><span class="badge ${cl}">${lb}</span></div></div>`; }).join("")
-    : `<div class="muted">Chưa có video nào. Vào Bảng điều khiển → Chạy quy trình ngay.</div>`;
-  $$("#jobList .job").forEach(el => el.onclick = () => { selectedJob = el.dataset.id; renderLib(); });
-  renderDetail();
-}
-$("#libFilter").onchange = renderLib;
-function renderDetail(){
-  const j = jobs.find(x => x.id === selectedJob); const box = $("#jobDetail");
-  if (!j){ box.innerHTML = ""; if (libPlayer) libPlayer.stop(); return; }
-  if (!j.script){ box.innerHTML = `<div class="card" style="margin-top:16px">Job lỗi: ${escapeHtml(j.error_code||"")} — ${escapeHtml(j.error_message||"")}</div>`; return; }
-  const pf = ["telegram","facebook","youtube","tiktok"];
-  box.innerHTML = `<div class="detail">
-    <div class="phone"><canvas id="libCanvas" width="540" height="960"></canvas>
-      <div class="ctl"><button class="btn small" id="libPlay">▶</button><input type="range" id="libSeek" min="0" max="1000"><span class="small muted" id="libTime"></span></div>
-      <div class="row small" style="justify-content:center;margin-top:8px"><label><input type="checkbox" id="libVoice" checked> giọng đọc</label><label><input type="checkbox" id="libSafe"> lớp safe-zone</label></div>
-      <div class="row" style="justify-content:center;margin-top:8px"><button class="btn small" id="recBtn">⏺ Ghi video WebM</button><button class="btn small" id="pngBtn">Ảnh bìa</button></div>
-      <div class="small muted" id="recInfo" style="margin-top:6px"></div>
+<footer class="footer">
+  <div class="container">
+    <div class="foot-grid">
+      <div><a class="logo" href="#main"><span class="logo-mark"><svg viewBox="0 0 24 24" fill="none" stroke="#03140d" stroke-width="3" stroke-linecap="round"><path d="M6 18v-4M12 18V7M18 18v-7"/></svg></span>StockAI Studio</a>
+        <p style="margin-top:14px;max-width:340px">Ứng dụng desktop tự động tạo bản tin chứng khoán video 9:16 có MC ảo nói tiếng Việt.</p></div>
+      <div><h5>Sản phẩm</h5><ul><li><a href="#quy-trinh">Quy trình</a></li><li><a href="#tinh-nang">Tính năng</a></li><li><a href="#chi-phi">Chi phí</a></li><li><a href="app.html">Studio demo</a></li></ul></div>
+      <div><h5>Tài liệu</h5><ul><li><a href="https://github.com/luan0217091310-gif/StockAI-Studio/blob/main/README.md" target="_blank" rel="noopener">Cài đặt</a></li><li><a href="https://github.com/luan0217091310-gif/StockAI-Studio/blob/main/docs/BLUEPRINT.md" target="_blank" rel="noopener">Đặc tả v3.0</a></li><li><a href="https://github.com/luan0217091310-gif/StockAI-Studio/blob/main/BAO_CAO.md" target="_blank" rel="noopener">Hướng dẫn sử dụng</a></li></ul></div>
+      <div><h5>Pháp lý</h5><ul><li><a href="#tuan-thu">Nhãn AI</a></li><li><a href="#faq">Miễn trừ trách nhiệm</a></li></ul></div>
     </div>
-    <div class="card">
-      <div class="subtabs">${["Bài đăng","Kịch bản","Biểu đồ","Tin nguồn","Phụ đề","Log","Dữ liệu"].map((n,i) => `<button data-p="${i}" class="${i===0?"on":""}">${n}</button>`).join("")}</div>
-      <div class="pane on" data-p="0">
-        ${j.data_quality==="SYNTHETIC" ? `<div class="note">⚠ Video dùng DỮ LIỆU MINH HỌA → chỉ được dry-run, không đăng thật (R-DATA-2, R-PUB-1).</div>` : ""}
-        <label class="f">Tiêu đề video (≤ 80 ký tự)</label><input type="text" id="edTitle" maxlength="80" value="${escapeHtml(j.video_title)}">
-        <label class="f">Bài đăng</label><textarea id="edPost">${escapeHtml(j.social_post_text)}</textarea>
-        <div class="row" style="margin-top:8px"><button class="btn" id="saveEd">Lưu chỉnh sửa</button><button class="btn" id="copyPost">Copy bài đăng</button><span class="small muted" id="edCheck"></span></div>
-        <h3 style="margin-top:18px">Duyệt &amp; Đăng</h3>
-        ${pf.map(p => `<div class="pub"><input type="checkbox" class="pubChk" value="${p}" ${j.platforms.includes(p)?"checked":""}><span>${PLATFORM_NAME[p]}</span>
-          <select class="pubPriv" data-p="${p}">${(p==="tiktok"?["SELF_ONLY","MUTUAL_FOLLOW_FRIENDS","PUBLIC_TO_EVERYONE"]:p==="youtube"?["private","unlisted","public"]:p==="facebook"?["published"]:["channel"]).map(o=>`<option>${o}</option>`).join("")}</select></div>`).join("")}
-        <div class="row" style="margin-top:10px"><button class="btn ok" id="approveBtn" ${j.status==="WAITING_APPROVAL"?"":"disabled"}>Duyệt &amp; Đăng</button><button class="btn" id="republishBtn" ${j.status==="COMPLETED"?"":"disabled"}>Đăng thêm nền tảng</button><button class="btn danger" id="delJob">Xóa job</button></div>
-        <table style="margin-top:12px">${j.publish_logs.map(l => `<tr><td>${PLATFORM_NAME[l.platform]}</td><td><span class="badge ${l.status==="SUCCESS"?"b-ok":"b-dry"}">${l.status}</span></td><td class="small muted">${escapeHtml(l.error_message||"")}</td><td><button class="btn small" data-prev="${l.platform}">Xem preview</button></td></tr>`).join("")}</table>
-        <pre class="box" id="pubPrev" style="display:none;margin-top:8px"></pre>
-      </div>
-      <div class="pane" data-p="1"><div class="small muted">Provider: ${j.llm_provider} · ${wc(j.script.video_script)} từ · factcheck ${j.factcheck_passed?"ĐẠT":"LỖI"} · sentiment ${j.script.market_sentiment}</div><pre class="box">${escapeHtml(j.script.video_script)}</pre>
-        <h3 style="margin-top:12px">Kịch bản thị trường</h3>${j.script.scenarios.map(s=>`<div><b>${s.name}:</b> ${escapeHtml(s.description)}</div>`).join("")}
-        <h3 style="margin-top:12px">Ticker</h3><pre class="box">${escapeHtml(j.script.ticker_text)}</pre></div>
-      <div class="pane" data-p="2"><canvas id="chartCv" width="1080" height="660" style="width:100%;border-radius:8px"></canvas></div>
-      <div class="pane" data-p="3"><table>${j.news.map((n,i)=>`<tr><td>#${i}</td><td>${escapeHtml(n.title)}<div class="small muted">${escapeHtml(n.summary)}</div></td><td>${n.source}</td><td class="small">${n.score}</td></tr>`).join("")}</table><div class="small muted" style="margin-top:8px">Bản demo dùng tin mẫu (fixture) — link chỉ là giả lập. Bản thật lấy RSS trực tiếp và giữ link gốc.</div></div>
-      <div class="pane" data-p="4"><div class="row"><button class="btn small" id="dlSrt">Tải subs.srt</button><button class="btn small" id="dlAss">Tải subs.ass</button></div><pre class="box" style="margin-top:8px">${escapeHtml(j.srt)}</pre></div>
-      <div class="pane" data-p="5"><pre class="box">${escapeHtml(j.events.map(e=>`[${e.ts.slice(11,19)}] B${e.step} ${e.level.padEnd(7)} ${e.message}`).join("\n"))}</pre></div>
-      <div class="pane" data-p="6"><pre class="box">${escapeHtml(JSON.stringify({id:j.id, status:j.status, data_quality:j.data_quality, market:{...j.market, bars:`[${j.market.bars.length} phiên]`}, script:j.script}, null, 2))}</pre></div>
-    </div></div>`;
-  $$("#jobDetail .subtabs button").forEach(b => b.onclick = () => { $$("#jobDetail .subtabs button").forEach(x => x.classList.toggle("on", x===b)); $$("#jobDetail .pane").forEach(p => p.classList.toggle("on", p.dataset.p === b.dataset.p)); });
-  if (libPlayer) libPlayer.stop();
-  libPlayer = makePlayer($("#libCanvas"), $("#libPlay"), $("#libSeek"), $("#libTime"), $("#libVoice")); libPlayer.load(j);
-  $("#libSafe").onchange = e => { libPlayer.safe = e.target.checked; libPlayer.draw(); };
-  $("#chartCv").getContext("2d").drawImage(prepareAssets(j).chart, 0, 0);
-  const checkEd = () => { const errs = []; const p = $("#edPost").value; if (!p.includes(DISCLAIMER)) errs.push("thiếu câu miễn trừ"); if (!p.includes(AI_DECL)) errs.push("thiếu khai báo AI"); BANNED.forEach(b => p.toLowerCase().includes(b) && errs.push(`cụm cấm "${b}"`));
-    $("#edCheck").innerHTML = errs.length ? `<span class="down">⚠ ${errs.join(", ")}</span>` : `<span class="up">✓ Đạt kiểm tra pháp lý</span>`; return errs; };
-  $("#edPost").oninput = checkEd; checkEd();
-  $("#saveEd").onclick = () => { if (checkEd().length) return toast("Bài đăng chưa đạt kiểm tra — chưa lưu", "#F43F5E"); j.video_title = NFC($("#edTitle").value); j.social_post_text = NFC($("#edPost").value); saveJobs(); renderLib(); toast("Đã lưu chỉnh sửa"); };
-  $("#copyPost").onclick = () => { navigator.clipboard?.writeText($("#edPost").value); toast("Đã copy bài đăng"); };
-  const doPub = async () => { if (checkEd().length) return toast("Bài đăng chưa đạt kiểm tra", "#F43F5E");
-    j.video_title = NFC($("#edTitle").value); j.social_post_text = NFC($("#edPost").value);
-    const ps = $$(".pubChk").filter(c => c.checked).map(c => c.value); if (!ps.length) return toast("Chọn ít nhất 1 nền tảng", "#F59E0B");
-    const priv = {}; $$(".pubPriv").forEach(s => priv[s.dataset.p] = s.value);
-    await publishJob(j, ps, priv, async (l,m) => { j.events.push({ts:new Date().toISOString(), step:5, level:l, message:m}); });
-    toast(j.data_quality === "SYNTHETIC" ? "Đã lưu bản xem trước đăng bài (dry-run) cho các nền tảng" : "Đã đăng"); refreshAll(); };
-  $("#approveBtn").onclick = doPub; $("#republishBtn").onclick = doPub;
-  $("#delJob").onclick = () => { if (!confirm("Xóa job này?")) return; jobs = jobs.filter(x => x.id !== j.id); selectedJob = null; saveJobs(); refreshAll(); };
-  $$("[data-prev]").forEach(b => b.onclick = () => { const l = j.publish_logs.filter(x => x.platform === b.dataset.prev).at(-1); const pre = $("#pubPrev"); pre.style.display = "block"; pre.textContent = "publish_preview.json\n" + JSON.stringify(l.preview, null, 2); });
-  const dl = (name, text, type="text/plain") => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text],{type})); a.download = name; a.click(); };
-  $("#dlSrt").onclick = () => dl("subs.srt", j.srt); $("#dlAss").onclick = () => dl("subs.ass", j.ass);
-  $("#pngBtn").onclick = () => { const c = document.createElement("canvas"); c.width = 1080; c.height = 1920; drawFrame(c.getContext("2d"), j, 1); c.toBlob(b => { const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "thumbnail.png"; a.click(); }); };
-  $("#recBtn").onclick = () => recordVideo(j);
-}
-function recordVideo(j){
-  if (!HTMLCanvasElement.prototype.captureStream || !window.MediaRecorder) return toast("Trình duyệt không hỗ trợ ghi video", "#F43F5E");
-  const c = document.createElement("canvas"); c.width = 720; c.height = 1280; const g = c.getContext("2d");
-  const rec = new MediaRecorder(c.captureStream(30), {mimeType: MediaRecorder.isTypeSupported("video/webm;codecs=vp9") ? "video/webm;codecs=vp9" : "video/webm", videoBitsPerSecond:3_000_000});
-  const chunks = []; rec.ondataavailable = e => chunks.push(e.data);
-  rec.onstop = () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(chunks,{type:"video/webm"})); a.download = `stockai_${j.run_date}.webm`; a.click(); $("#recInfo").textContent = "Đã tải xong file WebM (không có tiếng — bản thật dùng FFmpeg ghép voice.mp3)."; $("#recBtn").disabled = false; };
-  const t0 = performance.now(); rec.start(); $("#recBtn").disabled = true;
-  const step = () => { const t = (performance.now()-t0)/1000; if (t >= j.duration_s){ rec.stop(); return; } drawFrame(g, j, t); $("#recInfo").textContent = `Đang ghi ${Math.floor(t)}/${Math.floor(j.duration_s)} giây… (để tab mở)`; requestAnimationFrame(step); };
-  step();
-}
+    <div class="disc"><span>Nội dung chỉ mang tính tham khảo, không phải khuyến nghị đầu tư. Số liệu trên trang này là dữ liệu minh họa.</span><span>© <span id="yr"></span> StockAI Studio</span></div>
+  </div>
+</footer>
 
-/* ---------- Nhân vật & giọng ---------- */
-function drawAvPrev(){ const c = $("#avPrev"), g = c.getContext("2d"); g.drawImage(currentAvatar(), 0, 0, c.width, c.height);
-  g.strokeStyle = "rgba(250,204,21,.9)"; g.setLineDash([8,6]); g.lineWidth = 2; g.strokeRect(70, 148, 400, 80); g.setLineDash([]);
-  g.fillStyle = "rgba(250,204,21,.9)"; g.font = "600 13px 'Segoe UI'"; g.fillText("vùng phụ đề (y 1240–1400)", 76, 142);
-  g.fillStyle = "rgba(244,63,94,.28)"; g.fillRect(0, 248, 540, 240); g.fillStyle = "#fff"; g.fillText("từ đây xuống bị UI nền tảng che (y ≥ 1440)", 10, 268); }
-let pendingImg = null;
-function handleFile(file){
-  if (!file || !file.type.startsWith("image/")) return toast("Vui lòng chọn file ảnh", "#F43F5E");
-  const r = new FileReader(); r.onload = () => { const im = new Image(); im.onload = () => { pendingImg = {im, dataUrl:r.result};
-    if (im.width < 720) toast("Ảnh nhỏ hơn 720px chiều ngang — chất lượng có thể kém", "#F59E0B"); tryCommitAvatar(); }; im.src = r.result; }; r.readAsDataURL(file);
-}
-function tryCommitAvatar(){
-  if (!pendingImg) return;
-  if (!$("#consChk").checked || !$("#consName").value.trim()){ $("#avStatus").innerHTML = `<span class="down">Đã chọn ảnh — hãy nhập tên và tick ô đồng ý để áp dụng (R-LEGAL-3).</span>`; return; }
-  const consent = {subject_name:NFC($("#consName").value.trim()), relation:$("#consRel").value, statement:$("label[for=consChk]").textContent, created_at:new Date().toISOString()};
-  avatarImg = cropPortrait(pendingImg.im); jobs.forEach(hydrate);
-  // lưu bản thu nhỏ để không vượt giới hạn localStorage
-  const small = document.createElement("canvas"); small.width = 540; small.height = 488; small.getContext("2d").drawImage(avatarImg,0,0,540,488);
-  const ok = store.set("avatar", {dataUrl:small.toDataURL("image/jpeg",0.85), consent});
-  pendingImg = null; drawAvPrev(); dashPlayer.draw(); renderPreflight();
-  $("#avStatus").textContent = `Đang dùng ảnh của: ${consent.subject_name} (đã ghi nhận đồng ý${ok?"":" — không lưu được vào trình duyệt"}).`; toast("Đã cập nhật ảnh MC");
-}
-$("#drop").onclick = () => $("#avFile").click();
-$("#avFile").onchange = e => handleFile(e.target.files[0]);
-$("#drop").ondragover = e => e.preventDefault();
-$("#drop").ondrop = e => { e.preventDefault(); handleFile(e.dataTransfer.files[0]); };
-$("#consChk").onchange = tryCommitAvatar; $("#consName").onchange = tryCommitAvatar;
-$("#avReset").onclick = () => { avatarImg = placeholderAvatar(); try{ localStorage.removeItem("stockai.avatar"); }catch{} jobs.forEach(hydrate); drawAvPrev(); dashPlayer.draw(); renderPreflight(); $("#avStatus").textContent = "Đang dùng ảnh mẫu do app tự vẽ (placeholder)."; };
-const COST = {demo:0, fal_std:0.0562, fal_pro:0.115, heygen:0.10, hybrid:"hybrid"};
-function renderCost(){ const p = $("#avProv").value; settings.avatar_provider = p; saveSettings(); const D = jobs[0]?.duration_s || 75;
-  const c = COST[p] === "hybrid" ? 15*0.0562 : COST[p]*D;
-  $("#costEst").innerHTML = p === "demo" ? "Ước tính: 0 đồng/video (không khớp môi)." : `Ước tính ≈ <b>$${c.toFixed(2)}/video</b> (video ${Math.round(D)} giây) · ≈ $${(c*44).toFixed(0)}/tháng cho 44 video. <br><span class="small">Bản demo không gọi provider trả phí; pipeline sẽ dùng DemoMotion. Giá cần [KIỂM CHỨNG].</span>`; }
-$("#avProv").value = settings.avatar_provider || "demo"; $("#avProv").onchange = renderCost;
-$("#rate").oninput = () => $("#rateLbl").textContent = ($("#rate").value >= 0 ? "+" : "") + $("#rate").value + "%";
-const showNorm = () => $("#ttsNorm").textContent = viNormalize($("#ttsText").value); $("#ttsText").oninput = showNorm; showNorm();
-$("#ttsBtn").onclick = () => { const v = speak($("#ttsText").value); $("#ttsInfo").textContent = v ? "Đang đọc bằng: " + v : "Trình duyệt không hỗ trợ đọc"; };
-
-/* ---------- Lịch ---------- */
-const DAYS_LB = {"mon-fri":"T2–T6", all:"Cả tuần"};
-function renderSched(){
-  $("#sTable").innerHTML = schedules.map(s => `<tr><td><label class="switch"><input type="checkbox" data-tog="${s.id}" ${s.is_active?"checked":""}><span></span></label></td>
-    <td>${escapeHtml(s.name)}<div class="small muted">${SESSION_LABEL[s.session_type]} · ${s.platforms.map(p=>PLATFORM_NAME[p]).join(", ")} · ${s.require_approval?"chờ duyệt":"tự đăng (trừ TikTok)"}</div></td>
-    <td>${s.time}</td><td>${DAYS_LB[s.days]}</td><td class="small">${s.last_run_at ? new Date(s.last_run_at).toLocaleString("vi-VN") + "<br>" + s.last_status : "—"}</td>
-    <td><button class="btn small" data-run="${s.id}">Chạy thử</button> <button class="btn small danger" data-del="${s.id}">Xóa</button></td></tr>`).join("") || `<tr><td colspan="6" class="muted">Chưa có lịch.</td></tr>`;
-  $$("[data-tog]").forEach(c => c.onchange = () => { schedules.find(s => s.id == c.dataset.tog).is_active = c.checked; saveSched(); tick(); });
-  $$("[data-del]").forEach(b => b.onclick = () => { schedules = schedules.filter(s => s.id != b.dataset.del); saveSched(); renderSched(); tick(); });
-  $$("[data-run]").forEach(b => b.onclick = () => { const s = schedules.find(s => s.id == b.dataset.run); switchTab("dash"); runPipeline(s.session_type, "MANUAL", s); });
-}
-function addSchedule(name, type, time, days){
-  const ps = $$(".sPf").filter(c => c.checked).map(c => c.value);
-  schedules.push({id:Date.now(), name:NFC(name), session_type:type, time, days, platforms:ps.length?ps:["telegram"], require_approval:$("#sAppr").checked || ps.includes("tiktok"), is_active:true, last_run_at:null, last_status:null});
-  saveSched(); renderSched(); tick();
-}
-$("#sAdd").onclick = () => { addSchedule($("#sName").value || "Lịch mới", $("#sType").value, $("#sTime").value, $("#sDays").value); toast("Đã thêm lịch — đồng bộ ngay, không cần khởi động lại"); };
-$("#sQuick").onclick = () => { const d = new Date(Date.now() + 60000); const t = `${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
-  addSchedule("Lịch thử nghiệm", "PRE_MARKET", t, "all"); toast(`Đã tạo lịch lúc ${t}. Giữ tab mở và quay lại Bảng điều khiển để xem nó tự chạy.`); };
-
-/* ---------- Cài đặt ---------- */
-const KEYS = [["AI","gemini_api_key","Gemini API key"],["AI","openai_api_key","OpenAI-compatible API key"],["Dữ liệu","ssi_consumer_id","SSI FastConnect Consumer ID"],["Dữ liệu","ssi_consumer_secret","SSI FastConnect Consumer Secret"],
-  ["Avatar & Giọng","fal_key","fal.ai key"],["Avatar & Giọng","heygen_api_key","HeyGen API key"],["Avatar & Giọng","elevenlabs_api_key","ElevenLabs API key"],
-  ["Mạng xã hội","telegram_bot_token","Telegram Bot Token"],["Mạng xã hội","facebook_page_token","Facebook Page Token"],["Mạng xã hội","tiktok_access_token","TikTok access token"]];
-const mask = v => v.length <= 8 ? "••••" : v.slice(0,4) + "••••••" + v.slice(-4);
-function renderKeys(){
-  let grp = ""; $("#keys").innerHTML = KEYS.map(([g,k,lb]) => { const h = g !== grp ? `<h3 style="margin-top:14px">${g}</h3>` : ""; grp = g;
-    return `${h}<label class="f">${lb} ${secrets[k] ? `<span class="badge b-ok">${mask(secrets[k])}</span>` : ""}</label><div class="row" style="flex-wrap:nowrap"><input type="password" data-key="${k}" placeholder="Chưa cấu hình"><button class="btn small" data-test="${k}">Kiểm tra kết nối</button></div>`; }).join("");
-  $$("[data-key]").forEach(i => i.onchange = () => { if (i.value.trim()) secrets[i.dataset.key] = i.value.trim(); i.value = ""; renderKeys(); renderProd(); });
-  $$("[data-test]").forEach(b => b.onclick = () => toast(secrets[b.dataset.test] ? `${b.dataset.test}: định dạng hợp lệ. Bản demo không gọi API thật — kiểm tra thật cần backend Python.` : `${b.dataset.test}: chưa nhập khóa`, secrets[b.dataset.test] ? "#3B82F6" : "#F59E0B"));
-}
-function renderProd(){
-  const miss = [];
-  if (!secrets.ssi_consumer_id || !secrets.ssi_consumer_secret) miss.push("Nguồn dữ liệu hợp lệ (SSI FastConnect) — quyết định D1");
-  if (!secrets.gemini_api_key && !secrets.openai_api_key) miss.push("Khóa LLM (Gemini hoặc OpenAI-compatible)");
-  if (!store.get("avatar",null)) miss.push("Ảnh chân dung thật + bản ghi đồng ý (R-LEGAL-3)");
-  if (!secrets.telegram_bot_token) miss.push("Ít nhất một kênh đăng (Telegram Bot Token)");
-  miss.push("Backend Python (FastAPI + FFmpeg) — bản demo trình duyệt không thể đăng thật");
-  $("#prodCheck").innerHTML = settings.mode === "PRODUCTION" ? `<div class="note"><b>Điều kiện còn thiếu cho PRODUCTION:</b><ul style="margin:6px 0 0;padding-left:18px">${miss.map(x=>`<li>${x}</li>`).join("")}</ul></div>` : `<div class="info">DEMO: dữ liệu minh họa, kịch bản mẫu, avatar chuyển động nhẹ, đăng bài dạng dry-run. Chi phí 0 đồng.</div>`;
-}
-$("#modeSw").checked = settings.mode === "PRODUCTION";
-$("#modeSw").onchange = e => { settings.mode = e.target.checked ? "PRODUCTION" : "DEMO"; saveSettings(); renderProd(); refreshAll(); };
-$("#exportBtn").onclick = () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify({jobs:jobs.map(({_assets,_avatar,...r})=>r), schedules, settings}, null, 2)],{type:"application/json"})); a.download = "stockai_demo_export.json"; a.click(); };
-$("#wipeBtn").onclick = () => { if (!confirm("Xóa toàn bộ job, lịch, ảnh và cài đặt demo?")) return; Object.keys(localStorage).filter(k => k.startsWith("stockai.")).forEach(k => localStorage.removeItem(k)); location.reload(); };
-
-/* ---------- Điều hướng ---------- */
-function switchTab(t){ $$("#nav button").forEach(b => b.classList.toggle("on", b.dataset.tab === t)); $$(".tab").forEach(s => s.classList.toggle("on", s.id === "tab-"+t));
-  if (t !== "lib" && libPlayer) libPlayer.stop(); if (t !== "dash") dashPlayer.stop(); if (t === "lib") renderLib(); }
-$$("#nav button").forEach(b => b.onclick = () => switchTab(b.dataset.tab));
-
-/* ---------- Khởi động ---------- */
-drawAvPrev(); renderCost(); renderSched(); renderKeys(); renderProd(); refreshAll();
-if (jobs[0]?.script) dashPlayer.load(jobs[0]);
-if ("speechSynthesis" in window) setTimeout(renderPreflight, 800);
-tick(); setInterval(tick, 1000);
-</script>
+<div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+<script src="assets/engine.js" defer></script>
+<script src="assets/landing.js" defer></script>
 </body>
 </html>

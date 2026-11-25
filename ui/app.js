@@ -67,14 +67,15 @@ async function refreshStatus() {
   try { status = await api("/api/status"); } catch (e) { return; }
   const m = status.market;
   if (m) { $("#cIdx").textContent = fmt(m.close); $("#cChg").innerHTML = `<span class="${m.change >= 0 ? "up" : "down"}">${sgn(m.change)} (${sgn(m.change_pct)}%)</span> · phiên ${m.session_date.split("-").reverse().join("/")}`;
-    const q = {LIVE:["live","b-live"], CACHED:["cached","b-cache"], SYNTHETIC:["minh họa","b-syn"]}[m.data_quality]; $("#qBadge").textContent = q[0]; $("#qBadge").className = "badge " + q[1]; }
+    const q = {LIVE:["live","b-live"], CACHED:["cached","b-cache"], SYNTHETIC:["minh họa","b-syn"]}[m.data_quality]; $("#qBadge").textContent = q[0]; $("#qBadge").className = "badge " + q[1];
+    $("#cSpark").innerHTML = sparkSvg(m.spark || [], m.change >= 0); }
   $("#cVid").textContent = status.videos; $("#cWait").textContent = `${status.waiting} chờ duyệt`;
   $("#navWait").innerHTML = status.waiting ? `<span class="badge b-wait">${status.waiting}</span>` : "";
   const prod = status.mode === "PRODUCTION";
   $("#cMode").textContent = prod ? "Production" : "Demo";
   $("#cCost").textContent = prod ? `$${(status.cost_month_usd||0).toFixed(2)} tháng này` : "0 đồng";
   $("#banner").className = "banner" + (prod ? " prod" : "");
-  $("#banner").textContent = prod ? "● PRODUCTION — luôn duyệt trước khi đăng" : "⚗ Chế độ demo: dữ liệu công khai/minh họa, avatar chuyển động nhẹ, không tốn phí";
+  $("#banner").textContent = prod ? "PRODUCTION · luôn duyệt trước khi đăng" : "Chế độ demo · dữ liệu công khai/minh họa · avatar chuyển động nhẹ · 0 đồng";
   nextAt = status.next_run_at ? new Date(status.next_run_at) : null;
   setRunning(!!status.running_job);
   if (status.running_job && currentJob !== status.running_job) {  // mở trang giữa lúc job đang chạy → nạp log cũ
@@ -84,6 +85,12 @@ async function refreshStatus() {
   }
   if (status.interrupted && !refreshStatus.warned) { refreshStatus.warned = true; toast(`${status.interrupted} job bị gián đoạn lần trước đã chuyển sang Lỗi (INTERRUPTED)`, "warn"); }
   $("#pfBanner").innerHTML = status.preflight_ok === false ? `<div class="errbox">⚠ Môi trường chưa đủ (FFmpeg/filter/font). Xem Cài đặt → Kiểm tra môi trường. Gợi ý: <code>winget install Gyan.FFmpeg</code></div>` : "";
+}
+function sparkSvg(v, up) {  // sparkline 30 phiên (SVG thuần, không cần thư viện)
+  if (v.length < 2) return "";
+  const lo = Math.min(...v), hi = Math.max(...v), W = 160, H = 44, col = up ? "#10B981" : "#F43F5E";
+  const pts = v.map((x, i) => `${(i / (v.length - 1) * W).toFixed(1)},${(H - 4 - (x - lo) / (hi - lo || 1) * (H - 10)).toFixed(1)}`).join(" ");
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><defs><linearGradient id="sg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".35"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs><polygon points="0,${H} ${pts} ${W},${H}" fill="url(#sg)"/><polyline points="${pts}" fill="none" stroke="${col}" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>`;
 }
 function tickCountdown() {
   if (!nextAt) { $("#cNext").textContent = "--:--"; $("#cCount").textContent = "Chưa có lịch đang bật"; return; }

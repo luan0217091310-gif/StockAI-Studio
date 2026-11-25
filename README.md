@@ -4,6 +4,8 @@
 
 Quy trình 5 bước: **Thu thập → AI biên tập → Giọng & Avatar → Dựng video → Xuất bản (chờ duyệt)**.
 
+**Web demo (chạy ngay trên trình duyệt, không cần cài):** https://stockai-studio.luan0017091310.workers.dev — trang giới thiệu + Studio mô phỏng đủ 5 bước.
+
 ![Bảng điều khiển](docs/images/dashboard.png)
 
 ## Cài đặt (Windows)
@@ -30,6 +32,8 @@ macOS: `brew install ffmpeg uv` rồi `uv sync`.
 | Chỉ chạy tới 1 bước | `uv run python -m stockai run --step collect --offline` (`collect / edit / voice / render`) |
 | Video mẫu 8 giây | `uv run python -m stockai render-sample` |
 | Test | `uv run python -m pytest -q` |
+| Xem web demo trên máy | `uv run python -m http.server 8899 -d demo` rồi mở http://127.0.0.1:8899 |
+| Deploy web demo | push nhánh `main` (Cloudflare Workers Builds chạy `npx wrangler deploy` theo `wrangler.jsonc`) |
 
 > Dùng `python -m stockai` thay vì `stockai`: một số máy Windows bật Application Control chặn file `.exe` do uv tạo.
 

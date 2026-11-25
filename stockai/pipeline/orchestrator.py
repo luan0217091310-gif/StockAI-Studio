@@ -37,6 +37,7 @@ class Orchestrator:
     def __init__(self, repo: Repo | None = None):
         self.repo = repo or get_repo()
         self.lock = asyncio.Lock()
+        self.publish_lock = asyncio.Lock()  # chỉ một lượt đăng tại một thời điểm (chống bấm Duyệt & Đăng 2 lần)
         self.task: asyncio.Task | None = None
         self.current_job: str | None = None
         self.echo = None  # callback in ra console (CLI)
@@ -283,7 +284,11 @@ class Orchestrator:
             pct = int(rate.replace("%", "") or 0)
             new = max(-10, min(20, pct + (10 if audio.duration_s > 95 else -10)))
             say("WARN", f"Audio {audio.duration_s:.1f}s ngoài 45–95s → đọc lại với rate {new:+d}%")
-            audio = await tts.synthesize(text, voice, f"{new:+d}%", job_dir, emit=say)
+            try:
+                audio = await asyncio.wait_for(tts.synthesize(text, voice, f"{new:+d}%", job_dir, emit=say), 90)
+            except (StockAIError, TimeoutError) as e:
+                msg = e.message if isinstance(e, StockAIError) else "quá thời gian"
+                say("WARN", f"Đọc lại lỗi ({msg}) → giữ bản audio trước đó")
         (job_dir / "words.json").write_text(json.dumps([w.model_dump() for w in audio.words], ensure_ascii=False), encoding="utf-8")
         say("SUCCESS", f"voice.mp3 {audio.duration_s:.1f}s · {len(audio.words)} từ có mốc thời gian · subs.srt + subs.ass")
         await self.progress(job_id, 3, 0.35)
@@ -421,6 +426,13 @@ class Orchestrator:
             say("WARN", f"Gửi bản nháp Telegram lỗi: {e}")
 
     async def publish(self, job_id: str, platforms: list[str], privacy: dict[str, str], dry_run: bool = False) -> list[dict]:
+        """Đăng lên các nền tảng. Từ chối (JOB_RUNNING → 409) nếu đang có lượt đăng khác hoặc một job KHÁC đang chạy (R-RUN-4)."""
+        if self.publish_lock.locked() or (self.lock.locked() and self.current_job != job_id):
+            raise StockAIError("Đang có job chạy hoặc đang đăng bài — vui lòng chờ", code="JOB_RUNNING")
+        async with self.publish_lock:
+            return await self._publish(job_id, platforms, privacy, dry_run)
+
+    async def _publish(self, job_id: str, platforms: list[str], privacy: dict[str, str], dry_run: bool) -> list[dict]:
         from stockai.providers.publish.dry_run import DryRunPublisher
         from stockai.text import captions
 
@@ -445,8 +457,6 @@ class Orchestrator:
                    "channel": "public", "published": "public"}.get(raw_priv, raw_priv)
             opts = PublishOptions(privacy=std if std in ("public", "unlisted", "private", "draft") else "private",
                                   dry_run=dry_run or blocked)
-            if p == "tiktok":
-                self._tiktok_privacy = raw_priv
             try:
                 if opts.dry_run or job["mode"] == "DEMO" and p != "telegram":
                     pub = DryRunPublisher(p, {**caps[p], "platform_privacy": raw_priv,
@@ -454,7 +464,7 @@ class Orchestrator:
                                               {"containsSyntheticMedia": True} if p == "youtube" else {}})
                     res, attempt = await pub.publish(job_id, video, title, text, opts), 1
                 else:
-                    pub = self.publisher(p, script.hashtags, job)
+                    pub = self.publisher(p, script.hashtags, job, privacy=raw_priv)
                     from stockai.providers.publish.base import with_retry
                     res, attempt = await asyncio.wait_for(with_retry(lambda pub=pub, opts=opts: pub.publish(job_id, video, title, text, opts)), 300)
             except StockAIError as e:
@@ -473,7 +483,7 @@ class Orchestrator:
         await self.progress(job_id, 5, 1)
         return results
 
-    def publisher(self, p: str, hashtags: list[str], job: dict):
+    def publisher(self, p: str, hashtags: list[str], job: dict, privacy: str = "SELF_ONLY"):
         if p == "telegram":
             from stockai.providers.publish.telegram import TelegramPublisher
             return TelegramPublisher(self.repo.get_setting("telegram_chat_id"), hashtags=hashtags, duration=job["duration_s"] or 0,
@@ -487,7 +497,7 @@ class Orchestrator:
             return YouTubePublisher(hashtags, self.repo.get_setting("youtube.category_id", "25"))
         if p == "tiktok":
             from stockai.providers.publish.tiktok import TikTokPublisher
-            return TikTokPublisher(privacy_level=getattr(self, "_tiktok_privacy", "SELF_ONLY"))
+            return TikTokPublisher(privacy_level=privacy if privacy in ("SELF_ONLY", "MUTUAL_FOLLOW_FRIENDS", "PUBLIC_TO_EVERYONE") else "SELF_ONLY")
         raise ConfigError(f"Nền tảng không hỗ trợ: {p}")
 
 

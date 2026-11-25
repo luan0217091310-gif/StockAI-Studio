@@ -1,0 +1,12 @@
+{
+  "name": "StockAI Studio",
+  "short_name": "StockAI",
+  "description": "Bản tin chứng khoán video 9:16 tự động bằng AI — bản demo trên trình duyệt.",
+  "lang": "vi",
+  "start_url": "/app.html",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#05070d",
+  "theme_color": "#05070d",
+  "icons": [{"src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable"}]
+}

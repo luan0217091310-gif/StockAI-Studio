@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Studio · StockAI Studio</title>
+<meta name="description" content="Studio demo: chạy thử toàn bộ quy trình tạo bản tin chứng khoán video 9:16 ngay trên trình duyệt.">
+<meta name="theme-color" content="#05070d">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2310b981'/%3E%3Cpath d='M9 22v-5M16 22V11M23 22v-8' stroke='%2303140d' stroke-width='3.5' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preload" href="assets/fonts/BeVietnamPro-Bold.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="stylesheet" href="assets/base.css">
+<link rel="stylesheet" href="assets/app.css">
+</head>
+<body class="studio">
+<a class="skip" href="#content">Bỏ qua tới nội dung chính</a>
+
+<!-- ================= SIDEBAR ================= -->
+<aside class="side" id="side"><nav aria-label="Điều hướng Studio" style="display:contents">
+  <a class="logo" href="index.html" title="Về trang giới thiệu"><span class="logo-mark"><svg viewBox="0 0 24 24" fill="none" stroke="#03140d" stroke-width="3" stroke-linecap="round"><path d="M6 18v-4M12 18V7M18 18v-7"/></svg></span><span class="txt">StockAI Studio</span></a>
+  <button class="collapse-btn" id="collapse" aria-label="Thu gọn thanh bên"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="m15 6-6 6 6 6"/></svg></button>
+  <div class="sec-t">Không gian làm việc</div>
+  <button class="nav-i on" data-tab="dash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="9" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/><rect x="3" y="16" width="7" height="5" rx="2"/></svg><span class="lbl">Bảng điều khiển</span><kbd>1</kbd></button>
+  <button class="nav-i" data-tab="char"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span class="lbl">Nhân vật &amp; giọng</span><kbd>2</kbd></button>
+  <button class="nav-i" data-tab="lib"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m10 9 5 3-5 3Z" fill="currentColor"/></svg><span class="lbl">Kho nội dung</span><span class="cnt" id="navWait" hidden>0</span></button>
+  <button class="nav-i" data-tab="sched"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M3 9h18M8 2v4M16 2v4M12 13v3l2 1"/></svg><span class="lbl">Lịch tự động</span><kbd>4</kbd></button>
+  <button class="nav-i" data-tab="set"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg><span class="lbl">Cài đặt</span><kbd>5</kbd></button>
+  </nav>
+  <div class="side-foot">
+    <div class="mode-card" id="modeCard"><b><span class="badge b-ai">DEMO</span> Bản chạy trên trình duyệt</b>Mọi dịch vụ ngoài đều mô phỏng. Không gửi dữ liệu ra ngoài, không đăng bài thật.</div>
+    <a class="nav-i" href="index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg><span class="lbl">Trang giới thiệu</span></a>
+  </div>
+</aside>
+
+<!-- ================= MAIN ================= -->
+<div class="main">
+  <header class="topbar">
+    <div><h1 id="pgTitle">Bảng điều khiển</h1><div class="sub" id="pgSub">Chạy quy trình 5 bước và xem kết quả theo thời gian thực</div></div>
+    <div class="grow"></div>
+    <button class="search" id="openCmd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>Tìm lệnh, trang…<kbd>Ctrl K</kbd></button>
+    <div class="status-pill"><span class="pulse" id="pulse"></span><span id="engineSt">Sẵn sàng</span></div>
+  </header>
+
+  <main class="content" id="content" tabindex="-1">
+  <!-- ========== TAB 1: DASHBOARD ========== -->
+  <section class="page on" id="tab-dash">
+    <div id="voiceNotice"></div>
+    <div class="kpis">
+      <div class="card kpi spot"><div class="k">VN-Index <span class="badge b-syn" id="qBadge">—</span></div><div class="v" id="cIdx">—</div><div class="s" id="cChg">Chưa có dữ liệu</div><canvas class="spark" id="spark" width="240" height="56"></canvas></div>
+      <div class="card kpi spot"><div class="k">Video đã tạo</div><div class="v" id="cVid">0</div><div class="s" id="cWait">0 chờ duyệt</div></div>
+      <div class="card kpi spot"><div class="k">Lịch tiếp theo</div><div class="v mono" id="cNext">--:--</div><div class="s" id="cCount">Chưa có lịch</div><div class="ring" id="cRing"><span id="cRingT">—</span></div></div>
+      <div class="card kpi spot"><div class="k">Chế độ</div><div class="v" id="cMode">Demo</div><div class="s" id="cCost">0 đồng · không gọi API trả phí</div></div>
+    </div>
+    <div class="dash">
+      <div class="card panel">
+        <div class="panel-h">
+          <h2>Quy trình tạo bản tin</h2><span class="sp"></span>
+          <div class="seg" id="sessSeg"><button data-v="PRE_MARKET" class="on">Trước phiên</button><button data-v="POST_MARKET">Sau phiên</button><button data-v="ADHOC">Đột xuất</button></div>
+          <button class="run-btn" id="runBtn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v13.72a1 1 0 0 0 1.52.85l11-6.86a1 1 0 0 0 0-1.7l-11-6.86A1 1 0 0 0 8 5.14Z"/></svg><span>Chạy quy trình</span></button>
+        </div>
+        <div class="stepper" id="stepper"></div>
+        <div class="overall"><span id="ovLbl">Chưa chạy</span><div class="track"><i id="ovBar"></i></div><b id="ovPct">0%</b></div>
+        <div class="term">
+          <div class="term-h"><div class="dots"><i></i><i></i><i></i></div><span class="t" id="termT">stockai · live log</span>
+            <div class="chips" id="logFilter"><button class="on" data-l="">Tất cả</button><button data-l="WARN">WARN</button><button data-l="ERROR">ERROR</button></div>
+            <button class="icon-btn" id="copyLog" title="Sao chép log" style="width:30px;height:30px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button>
+            <button class="icon-btn" id="clrLog" title="Xóa log" style="width:30px;height:30px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>
+          </div>
+          <div class="term-body" id="term" role="log" aria-label="Log thời gian thực"><div class="empty">$ stockai run --mode demo<br>Bấm <b>Chạy quy trình</b> để xem log thời gian thực <span class="caret"></span></div></div>
+        </div>
+      </div>
+      <div class="card pv">
+        <div class="device"><span class="badge b-syn badge-live" id="pvBadge" hidden>MINH HỌA</span><canvas id="dashCanvas" width="540" height="960"></canvas></div>
+        <div class="pv-title" id="pvTitle">Xem trước 9:16</div>
+        <div class="pctl"><button class="play" id="dashPlay" aria-label="Phát"></button><input type="range" id="dashSeek" aria-label="Tua video" min="0" max="1000" value="0"><span class="time" id="dashTime">0:00 / 0:00</span></div>
+        <div class="ptog"><label class="check"><input type="checkbox" id="dashVoice" checked>Giọng đọc</label><label class="check"><input type="checkbox" id="dashSafe">Vùng an toàn</label></div>
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:14px"><button class="btn btn-sm" id="toLib" disabled>Mở trong Kho nội dung</button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== TAB 2: NHÂN VẬT & GIỌNG ========== -->
+  <section class="page" id="tab-char">
+    <div class="grid2">
+      <div class="card panel">
+        <div class="panel-h"><h2>Ảnh chân dung MC</h2><span class="sp"></span><span class="badge b-dry">vùng avatar 1080 × 976</span></div>
+        <div class="av-stage"><canvas id="avPrev" width="1080" height="976"></canvas></div>
+        <div class="small muted" id="avStatus" style="margin-top:10px"></div>
+        <div class="drop" id="drop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 16V4M7 9l5-5 5 5M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>Kéo-thả ảnh chân dung vào đây hoặc <b style="color:var(--brand-2)">bấm để chọn</b><br><span class="tiny faint">JPG/PNG · nên ≥ 720px ngang · ảnh chỉ nằm trong trình duyệt của bạn</span></div>
+        <input type="file" id="avFile" accept="image/*" hidden>
+        <div class="field"><label>Tên người trong ảnh</label><input class="input" id="consName" placeholder="Ví dụ: Nguyễn Văn A"></div>
+        <div class="field"><label>Quan hệ</label><select class="select" id="consRel"><option value="SELF">Tôi là người trong ảnh</option><option value="AUTHORIZED">Đã được người trong ảnh đồng ý</option></select></div>
+        <label class="check" style="margin-top:14px"><input type="checkbox" id="consChk"><span id="consTxt">Tôi là người trong ảnh hoặc đã được người trong ảnh đồng ý cho sử dụng hình ảnh để tạo MC ảo.</span></label>
+        <div style="display:flex;gap:8px;margin-top:16px"><button class="btn btn-primary" id="avApply" disabled>Áp dụng ảnh</button><button class="btn btn-danger" id="avReset">Dùng ảnh mẫu</button></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:18px">
+        <div class="card panel">
+          <div class="panel-h"><h2>Nhà cung cấp avatar</h2></div>
+          <div class="opt-grid" id="provGrid"></div>
+          <div class="cost-box" id="costEst"></div>
+        </div>
+        <div class="card panel">
+          <div class="panel-h"><h2>Giọng đọc</h2><span class="sp"></span><span class="badge b-dry">edge-tts · Neural</span></div>
+          <div class="opt-grid" id="voiceGrid"></div>
+          <div class="field"><label>Tốc độ đọc: <b id="rateLbl" style="color:var(--text)">+5%</b></label><input type="range" id="rate" aria-label="Tốc độ đọc" min="-10" max="20" value="5"></div>
+          <div class="field"><label>Câu nghe thử</label><input class="input" id="ttsText" value="Xin chào, đây là bản tin chứng khoán. VN-Index tăng +12,35 điểm, tương ứng +0,97%."></div>
+          <div class="norm" id="ttsNorm"></div>
+          <div style="display:flex;gap:8px;align-items:center;margin-top:14px;flex-wrap:wrap"><button class="btn btn-ai" id="ttsBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 5 6 9H2v6h4l5 4V5ZM15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>Nghe thử</button><span class="small muted" id="ttsInfo"></span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== TAB 3: KHO NỘI DUNG ========== -->
+  <section class="page" id="tab-lib">
+    <div class="lib-tools">
+      <div class="seg" id="libFilter"><button class="on" data-v="">Tất cả</button><button data-v="WAITING_APPROVAL">Chờ duyệt</button><button data-v="COMPLETED">Hoàn tất</button><button data-v="FAILED">Lỗi</button><button data-v="CANCELLED">Đã hủy</button></div>
+      <input class="input" id="libSearch" aria-label="Tìm video" placeholder="Tìm theo tiêu đề…">
+    </div>
+    <div class="jobs" id="jobList"></div>
+  </section>
+
+  <!-- ========== TAB 4: LỊCH ========== -->
+  <section class="page" id="tab-sched">
+    <div class="notice info"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>Lịch chỉ chạy khi ứng dụng đang mở (bản desktop chạy nền trong khay hệ thống). Ở bản web: giữ tab này mở, đến giờ quy trình sẽ tự chạy.</div>
+    <div class="week" id="week"></div>
+    <div class="grid2">
+      <div class="card panel">
+        <div class="panel-h"><h2>Thêm lịch</h2></div>
+        <div class="field"><label>Tên lịch</label><input class="input" id="sName" value="Bản tin trước phiên"></div>
+        <div class="grid2" style="gap:12px"><div class="field"><label>Loại phiên</label><select class="select" id="sType"><option value="PRE_MARKET">Trước phiên</option><option value="POST_MARKET">Sau phiên</option></select></div>
+          <div class="field"><label>Giờ chạy</label><input class="input" type="time" id="sTime" value="07:30"></div></div>
+        <div class="field"><label>Ngày</label><div class="seg" id="sDays"><button data-v="mon-fri" class="on">Thứ 2 – Thứ 6</button><button data-v="all">Cả tuần</button></div></div>
+        <div class="field"><label>Nền tảng</label><div class="pf-row" id="sPf"></div></div>
+        <label class="check" style="margin-top:16px"><span class="switch"><input type="checkbox" id="sAppr" checked><span></span></span>Chờ tôi duyệt trước khi đăng (TikTok luôn cần duyệt)</label>
+        <div style="display:flex;gap:8px;margin-top:18px;flex-wrap:wrap"><button class="btn btn-primary" id="sAdd">Lưu lịch</button><button class="btn" id="sQuick">Tạo lịch thử sau 1 phút</button></div>
+      </div>
+      <div class="card panel">
+        <div class="panel-h"><h2>Danh sách lịch</h2><span class="sp"></span><span class="small muted" id="schCount"></span></div>
+        <div class="sch-list" id="schList"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== TAB 5: CÀI ĐẶT ========== -->
+  <section class="page" id="tab-set">
+    <div class="set-grid">
+      <div style="display:flex;flex-direction:column;gap:18px">
+        <div class="card panel">
+          <div class="panel-h"><h2>Chế độ vận hành</h2></div>
+          <div class="mode-sw"><span class="lab">DEMO</span><label class="switch"><input type="checkbox" id="modeSw"><span></span></label><span class="lab">PRODUCTION</span></div>
+          <div id="prodCheck" style="margin-top:14px"></div>
+        </div>
+        <div class="card panel">
+          <div class="panel-h"><h2>Kiểm tra môi trường</h2></div>
+          <div id="pfList"></div>
+        </div>
+        <div class="card panel">
+          <div class="panel-h"><h2>Dữ liệu demo</h2></div>
+          <p class="small muted" style="margin:0 0 14px">Job, lịch, ảnh và cài đặt được lưu trong trình duyệt (localStorage). Khóa API chỉ giữ trong bộ nhớ của tab.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="exportBtn">Xuất JSON</button><button class="btn btn-danger" id="wipeBtn">Xóa toàn bộ dữ liệu demo</button></div>
+        </div>
+      </div>
+      <div class="card panel">
+        <div class="panel-h"><h2>Khóa dịch vụ</h2><span class="sp"></span><span class="badge b-ai">bản thật lưu trong keyring</span></div>
+        <div id="keys"></div>
+      </div>
+    </div>
+  </section>
+  </main>
+</div>
+
+<!-- Drawer chi tiết job -->
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="dwTitle">
+  <div class="drawer-h"><h3 id="dwTitle">Chi tiết</h3><span id="dwBadges"></span><button class="icon-btn" id="dwClose" aria-label="Đóng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+  <div class="drawer-b" id="dwBody"></div>
+</aside>
+
+<!-- Command palette -->
+<div class="cmdk" id="cmdk" role="dialog" aria-modal="true" aria-label="Bảng lệnh"><div class="cmdk-box">
+  <div class="cmdk-in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="cmdIn" placeholder="Gõ lệnh hoặc tên trang…" autocomplete="off"><kbd>Esc</kbd></div>
+  <div class="cmdk-list" id="cmdList"></div>
+</div></div>
+
+<div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+<script src="assets/engine.js" defer></script>
+<script src="assets/app.js" defer></script>
+</body>
+</html>
